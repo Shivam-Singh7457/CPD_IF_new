@@ -1,0 +1,6 @@
+{
+  "ci_a": 0.501,
+  "target_coverage": 0.95,
+  "achieved_coverage": 0.9547738693467337,
+  "n_detected_streams": 199
+}

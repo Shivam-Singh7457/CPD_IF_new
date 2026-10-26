@@ -1,0 +1,38 @@
+[
+  {
+    "p": 50,
+    "total_steps": 200000,
+    "us_per_update": 1083.9266209999914,
+    "peak_mem_kib_10k": 4.2421875,
+    "peak_mem_kib_50k": 4.5234375,
+    "peak_mem_kib_100k": 4.546875,
+    "peak_mem_kib_200k": 4.5703125
+  },
+  {
+    "p": 100,
+    "total_steps": 200000,
+    "us_per_update": 898.0738579999888,
+    "peak_mem_kib_10k": 5.8046875,
+    "peak_mem_kib_50k": 6.0859375,
+    "peak_mem_kib_100k": 6.109375,
+    "peak_mem_kib_200k": 6.1328125
+  },
+  {
+    "p": 200,
+    "total_steps": 200000,
+    "us_per_update": 852.160839000062,
+    "peak_mem_kib_10k": 8.9296875,
+    "peak_mem_kib_50k": 9.2109375,
+    "peak_mem_kib_100k": 9.234375,
+    "peak_mem_kib_200k": 9.2578125
+  },
+  {
+    "p": 400,
+    "total_steps": 200000,
+    "us_per_update": 902.0601584999531,
+    "peak_mem_kib_10k": 15.1796875,
+    "peak_mem_kib_50k": 15.4609375,
+    "peak_mem_kib_100k": 15.484375,
+    "peak_mem_kib_200k": 15.5078125
+  }
+]

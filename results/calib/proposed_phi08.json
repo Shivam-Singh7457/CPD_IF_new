@@ -1,0 +1,27 @@
+{
+  "c_A": 1.603810105007682,
+  "c_Q": 6.977587057492859,
+  "base_A": 3.619690687073525,
+  "tau_A": 5.805296500930719,
+  "tau_Q": 6.977587057492859,
+  "alpha0": 0.05,
+  "m0": 1000,
+  "method": "proposed",
+  "lrv_method": "prewhiten",
+  "window_grid": [
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512
+  ],
+  "kmax": 512,
+  "p": 50,
+  "T": 5000,
+  "n_streams": 4000,
+  "achieved_far": 0.052,
+  "statistic": "both",
+  "joint": false
+}

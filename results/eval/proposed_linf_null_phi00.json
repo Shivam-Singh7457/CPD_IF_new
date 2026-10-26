@@ -1,0 +1,12 @@
+{
+  "n_streams": 200,
+  "false_alarm_probability": 0.025,
+  "false_alarm_probability_se": 0.011039701082909808,
+  "censored_arl": 3944.05,
+  "dataset": "null_phi00",
+  "method": "proposed",
+  "lrv_method": "prewhiten",
+  "calib_json": "results/calib/proposed_linf_phi00.json",
+  "ci_a": 0.0,
+  "statistic": "linf_only"
+}

@@ -1,0 +1,411 @@
+"""Change-point localisation, confidence interval, and support (E11-E14)."""
+from __future__ import annotations
+
+import math
+from typing import Optional
+
+import numpy as np
+from scipy.stats import norm
+
+from .fit import FitResult
+
+
+def localize_at_alarm(
+    N: int,
+    t_N: int,
+    X: np.ndarray,
+    fit: FitResult,
+    tau_A: float,
+    tau_Q: float,
+    c_A: float,
+    c_Q: float,
+    ci_a: float = 0.0,
+    statistic: str = "both",
+    m_min: Optional[int] = None,
+    z: Optional[float] = None,
+) -> tuple[int, tuple[int, int], list[int]]:
+    """E12-E14: localise change-point from full stream at alarm time.
+
+    Parameters
+    ----------
+    N : alarm time (zero-based)
+    t_N : largest violating window length
+    X : (T, p) full stream
+    fit : FitResult
+    tau_A, tau_Q : thresholds
+    c_A, c_Q : threshold multipliers
+    ci_a : CI half-width parameter
+    statistic : {"both", "linf_only", "l_infinity", "q_only"}
+    m_min : minimum window size for localisation (default: min(fit.window_grid))
+    z : support threshold (default: normal quantile)
+
+    Returns
+    -------
+    nu_hat, CI, support
+    """
+    X = np.asarray(X, dtype=np.float64)
+    p = fit.p
+    m0 = fit.m0
+    Xc = X - fit.mu
+
+    # E12: for every integer m in [m_min, min(2*t_N, N - m0 + 1)]
+    m_max = min(2 * t_N, N - m0 + 1)
+    if m_min is None:
+        m_min = min(fit.window_grid) if (hasattr(fit, "window_grid") and len(fit.window_grid) > 0) else 8
+
+    if m_max < m_min:
+        # Fallback
+        m_star = t_N
+        nu_hat = N - m_star + 1
+    else:
+        best_R = -np.inf
+        m_star = m_min
+
+        for m in range(m_min, m_max + 1):
+            window_sum = np.sum(Xc[N - m + 1: N + 1], axis=0)  # (p,)
+
+            # Get s2 for this m from the precomputed table
+            if m < fit.s2_table.shape[0]:
+                s2_m = fit.s2_table[m]
+            else:
+                s2_m = fit.s2_table[-1]
+
+            sqrt_s2_m = np.sqrt(np.maximum(s2_m, 1e-16))
+            W = window_sum / sqrt_s2_m
+
+            A_m = np.max(np.abs(W))
+            Q_m = (np.sum(W ** 2) - p) / np.sqrt(2.0 * p)
+
+            if statistic in ("linf_only", "l_infinity"):
+                R_m = A_m / tau_A if (tau_A is not None and not np.isinf(tau_A) and tau_A > 0) else A_m
+            elif statistic == "q_only":
+                R_m = Q_m / tau_Q if (tau_Q is not None and not np.isinf(tau_Q) and tau_Q > 0) else Q_m
+            else:
+                val_A = A_m / tau_A if (tau_A is not None and not np.isinf(tau_A) and tau_A > 0) else -np.inf
+                val_Q = Q_m / tau_Q if (tau_Q is not None and not np.isinf(tau_Q) and tau_Q > 0) else -np.inf
+                R_m = max(val_A, val_Q)
+
+            if R_m > best_R:
+                best_R = R_m
+                m_star = m
+
+        nu_hat = N - m_star + 1
+
+    # E13: CI
+    if ci_a > 0:
+        half_width = math.ceil(ci_a * m_star)
+        ci_lo = max(m0, nu_hat - half_width)
+        ci_hi = min(N, nu_hat + half_width)
+        CI = (ci_lo, ci_hi)
+    else:
+        CI = (nu_hat, nu_hat)
+
+    # E14: support
+    # Recompute W at m_star
+    window_sum = np.sum(Xc[N - m_star + 1: N + 1], axis=0)
+    if m_star < fit.s2_table.shape[0]:
+        s2_m = fit.s2_table[m_star]
+    else:
+        s2_m = fit.s2_table[-1]
+    sqrt_s2_m = np.sqrt(np.maximum(s2_m, 1e-16))
+    W_star = window_sum / sqrt_s2_m
+    z_thresh = z if z is not None else norm.ppf(1.0 - 0.05 / (2.0 * p))
+    support = sorted(int(j) for j in range(p) if abs(W_star[j]) > z_thresh)
+
+    return nu_hat, CI, support
+
+
+def localize_from_buffer(
+    N: int,
+    t_N: int,
+    m0: int,
+    obs_buf: np.ndarray,
+    obs_head: int,
+    obs_buf_size: int,
+    fit: FitResult,
+    tau_A: float,
+    tau_Q: float,
+    c_A: float,
+    c_Q: float,
+    ci_a: float = 0.0,
+    statistic: str = "both",
+    m_min: Optional[int] = None,
+    z: Optional[float] = None,
+) -> tuple[Optional[int], Optional[tuple[int, int]], Optional[list[int]]]:
+    """E12-E14: localise from the observation ring buffer (for OnlineDetector).
+
+    Footnote G1:
+    The ring buffer must cover length at least 2*kmax because the post-alarm
+    local refinement window m ranges up to min(2*t_N, N - m0 + 1), where
+    t_N can be as large as kmax. Thus up to 2*kmax past observations are required.
+    """
+    p = fit.p
+
+    m_max = min(2 * t_N, N - m0 + 1)
+    if m_min is None:
+        m_min = min(fit.window_grid) if (hasattr(fit, "window_grid") and len(fit.window_grid) > 0) else 8
+
+    if m_max < m_min or m_max > obs_buf_size:
+        m_star = t_N
+        nu_hat = N - m_star + 1
+    else:
+        # Extract the last m_max observations in chronological order
+        indices = (obs_head - m_max + np.arange(m_max)) % obs_buf_size
+        recent_obs = obs_buf[indices]  # shape (m_max, p)
+
+        # Reverse cumulative sum so rev_cumsum[k] = sum of last (k+1) observations
+        rev_cumsum = np.cumsum(recent_obs[::-1], axis=0)  # rev_cumsum[m-1] has sum of last m obs
+
+        best_R = -np.inf
+        m_star = m_min
+
+        for m in range(m_min, m_max + 1):
+            window_sum = rev_cumsum[m - 1]  # (p,)
+            s2_m = fit.s2_table[m] if m < fit.s2_table.shape[0] else fit.s2_table[-1]
+            sqrt_s2_m = np.sqrt(np.maximum(s2_m, 1e-16))
+            W = window_sum / sqrt_s2_m
+
+            A_m = np.max(np.abs(W))
+            Q_m = (np.sum(W ** 2) - p) / np.sqrt(2.0 * p)
+
+            if statistic in ("linf_only", "l_infinity"):
+                R_m = A_m / tau_A if (tau_A is not None and not np.isinf(tau_A) and tau_A > 0) else A_m
+            elif statistic == "q_only":
+                R_m = Q_m / tau_Q if (tau_Q is not None and not np.isinf(tau_Q) and tau_Q > 0) else Q_m
+            else:
+                val_A = A_m / tau_A if (tau_A is not None and not np.isinf(tau_A) and tau_A > 0) else -np.inf
+                val_Q = Q_m / tau_Q if (tau_Q is not None and not np.isinf(tau_Q) and tau_Q > 0) else -np.inf
+                R_m = max(val_A, val_Q)
+
+            if R_m > best_R:
+                best_R = R_m
+                m_star = m
+
+        nu_hat = N - m_star + 1
+
+    # E13: CI
+    if ci_a > 0:
+        half_width = math.ceil(ci_a * m_star)
+        ci_lo = max(m0, nu_hat - half_width)
+        ci_hi = min(N, nu_hat + half_width)
+        CI = (ci_lo, ci_hi)
+    else:
+        CI = (nu_hat, nu_hat)
+
+    # E14: support from W at m_star
+    if m_star <= obs_buf_size:
+        indices = (obs_head - m_star + np.arange(m_star)) % obs_buf_size
+        window_sum = np.sum(obs_buf[indices], axis=0)
+
+        s2_m = fit.s2_table[m_star] if m_star < fit.s2_table.shape[0] else fit.s2_table[-1]
+        sqrt_s2_m = np.sqrt(np.maximum(s2_m, 1e-16))
+        W_star = window_sum / sqrt_s2_m
+        z_thresh = z if z is not None else norm.ppf(1.0 - 0.05 / (2.0 * p))
+        support = sorted(int(j) for j in range(p) if abs(W_star[j]) > z_thresh)
+    else:
+        support = []
+
+    return nu_hat, CI, support
+
+
+# ---------------------------------------------------------------------------
+# F1-F5: Chen-Wang-Samworth (2024) post-alarm inference (Eq. 16-17)
+# ---------------------------------------------------------------------------
+
+def make_scale_grid(b_min: float, p: int) -> np.ndarray:
+    """Construct positive scale grid B ∪ B0 (Eq. 16).
+
+    B0 = {b_min}, B = {2^{m/2} * b_min : m = 1, ..., M}
+    where M = ceil(2 * log2(1 / b_min)).
+    Returns sorted array of positive scales.
+    """
+    M = max(1, int(np.ceil(2 * np.log2(max(1.0 / b_min, 2.0)))))
+    scales = [b_min]
+    for m in range(1, M + 1):
+        scales.append(2 ** (m / 2.0) * b_min)
+    return np.unique(np.array(scales))
+
+
+def localize_chen(
+    N: int,
+    m_star: int,
+    X: np.ndarray,
+    fit: FitResult,
+    extra_obs: int = 20,
+    alpha: float = 0.05,
+    c_support: float = 0.35,
+    c_report: Optional[float] = 0.80,
+    b_min: float = 0.1,
+    kmax: Optional[int] = None,
+    use_residuals: bool = False,
+) -> dict:
+    """Eq. 16-17: Chen-Wang-Samworth post-alarm inference.
+
+    Implements F1-F5 from the planned upgrade in final_equations.pdf.
+
+    F1  Extra observations: after alarm at N, use ℓ = extra_obs further
+        observations.  E_j = sum_{i=N-h+1}^{N+ℓ} ζ_{i,j} / sqrt(h+ℓ),
+        with h = m* and ζ_{i,j} = (X_{i,j} - μ̂_j) / σ̂_j.
+
+    F2  Support: S = { j : |E_j| − b_min sqrt(m*+ℓ) ≥ d1 },
+        d1 = c * sqrt(log(p/α)).
+
+    F3  Scale grid B (positive half of B ∪ B0 from Algorithm 1).
+        b̃_j = sgn(E_j) max{ b ∈ B : |E_j| − b sqrt(m*+ℓ) ≥ d1 }.
+
+    F4  Tail length per j ∈ S (signed CUSUM form):
+        t_j = sargmax_{0≤h≤kmax} b̃_j Σ_{i=N-h+1}^{N} ζ_{i,j} − h b̃_j²/2.
+        NOTE: Following the Chen-Wang-Samworth paper (Algorithm 1), the
+        tail-length CUSUM sum runs to N (the alarm time), NOT to N+ℓ.
+        The extra observations are used only for computing E_j.
+
+    F5  Confidence interval:
+        CI = [ max( N − min_{j∈S}(t_j + 4d1²/b̃_j²), m0 ), N ].
+
+    Parameters
+    ----------
+    N : int
+        Alarm time (zero-based index into X).
+    m_star : int
+        Estimated window length from Eq. 13 localisation.
+    X : ndarray, shape (T, p)
+        Full stream.  Must contain at least N + extra_obs + 1 rows.
+    fit : FitResult
+    extra_obs : int
+        Number of extra observations after the alarm (ℓ).  Default 20.
+    alpha : float
+        Significance level (default 0.05).
+    c_support : float
+        Constant for d1 = c sqrt(log(p/α)).  Default 0.5.
+    b_min : float
+        Lower bound on the standardised signal magnitude.  Default 0.1.
+    kmax : int or None
+        Maximum tail length.  Default: fit.kmax.
+    use_residuals : bool
+        If True, use prewhitened residuals e_{i,j}/σ_{e,j} instead of ζ.
+
+    Returns
+    -------
+    dict with keys:
+        support, b_tilde, t_j, CI, E, d1, nu_hat,
+        extra_obs_actual, b_min, c_support, scale_grid, use_residuals
+    """
+    X = np.asarray(X, dtype=np.float64)
+    p = fit.p
+    m0 = fit.m0
+    T = X.shape[0]
+    if kmax is None:
+        kmax = fit.kmax
+    h = m_star  # alias for clarity
+
+    # Actual number of extra observations available
+    N_end = min(N + extra_obs, T - 1)
+    actual_ell = N_end - N
+
+    # ------------------------------------------------------------------
+    # F1: Build standardised series ζ (full stream)
+    # ------------------------------------------------------------------
+    if use_residuals:
+        # Prewhitened residuals: e_{i,j} = Xc_{i,j} − r̂_j Xc_{i-1,j}
+        Xc = X - fit.mu
+        e = Xc[1:] - fit.r[np.newaxis, :] * Xc[:-1]
+        omega_std = np.sqrt(np.maximum(fit.omega, 1e-16))  # σ_{e,j}
+        # zeta[0] = 0 placeholder (no residual for t=0)
+        zeta = np.zeros((T, p), dtype=np.float64)
+        zeta[1:] = e / omega_std[np.newaxis, :]
+    else:
+        # LRV-standardised: ζ_{i,j} = (X_{i,j} − μ̂_j) / σ̂_j
+        sigma_hat = np.sqrt(np.maximum(fit.sigma2, 1e-16))
+        zeta = (X - fit.mu) / sigma_hat[np.newaxis, :]
+
+    # E_j = Σ_{i=N-h+1}^{N+ℓ} ζ_{i,j} / sqrt(h + ℓ)
+    start_E = max(N - h + 1, 0)
+    end_E = N + actual_ell + 1  # exclusive
+    E = np.sum(zeta[start_E:end_E], axis=0) / np.sqrt(h + actual_ell)
+
+    # ------------------------------------------------------------------
+    # F2: Support for CI (S_CI) and Support for reporting (S_report)
+    # ------------------------------------------------------------------
+    d1 = c_support * np.sqrt(np.log(max(p / alpha, 1.0)))
+    sqrt_ml = np.sqrt(m_star + actual_ell)
+    support_mask_ci = np.abs(E) - b_min * sqrt_ml >= d1
+    support_ci = sorted(int(j) for j in range(p) if support_mask_ci[j])
+
+    if c_report is not None:
+        d1_report = c_report * np.sqrt(np.log(max(p / alpha, 1.0)))
+        support_mask_report = np.abs(E) - b_min * sqrt_ml >= d1_report
+        support_report = sorted(int(j) for j in range(p) if support_mask_report[j])
+    else:
+        support_report = support_ci
+
+    # Ŝ_CI is used inside F3-F5 for CI computation
+    support = support_ci
+
+    # ------------------------------------------------------------------
+    # F3: Scale grid B and b̃_j
+    # ------------------------------------------------------------------
+    B = make_scale_grid(b_min, p)
+    b_tilde = np.zeros(p, dtype=np.float64)
+    for j in support:
+        # Largest b in B such that |E_j| − b sqrt(m*+ℓ) ≥ d1
+        feasible = B[np.abs(E[j]) - B * sqrt_ml >= d1]
+        if len(feasible) > 0:
+            b_tilde[j] = np.sign(E[j]) * feasible[-1]
+        else:
+            b_tilde[j] = np.sign(E[j]) * b_min
+
+    # ------------------------------------------------------------------
+    # F4: Tail length t_j  (signed CUSUM, sum to N only)
+    # ------------------------------------------------------------------
+    t_j = np.zeros(p, dtype=int)
+    max_h = min(kmax, N - m0)
+    for j in support:
+        bj = b_tilde[j]
+        best_val = 0.0   # h = 0 baseline
+        best_h = 0
+        cumsum = 0.0
+        for hh in range(1, max_h + 1):
+            idx = N - hh + 1
+            if idx < 0:
+                break
+            cumsum += zeta[idx, j]
+            val = bj * cumsum - hh * bj * bj / 2.0
+            if val > best_val or (val == best_val and best_h == 0):
+                best_val = val
+                best_h = hh
+        t_j[j] = best_h
+
+    # ------------------------------------------------------------------
+    # F5: Confidence interval
+    # ------------------------------------------------------------------
+    if len(support) > 0:
+        ci_offsets = []
+        for j in support:
+            bj2 = b_tilde[j] ** 2
+            offset = float(t_j[j]) + (4.0 * d1 ** 2 / bj2 if bj2 > 1e-16 else 0.0)
+            ci_offsets.append(offset)
+        ci_lo = max(int(np.ceil(N - min(ci_offsets))), m0)
+        CI = (ci_lo, N)
+    else:
+        CI = (N, N)
+
+    nu_hat = N - m_star + 1
+
+    return {
+        "support": support,
+        "support_CI": support_ci,
+        "support_report": support_report,
+        "b_tilde": b_tilde,
+        "t_j": t_j,
+        "CI": CI,
+        "E": E,
+        "d1": d1,
+        "nu_hat": nu_hat,
+        "m_star": m_star,
+        "extra_obs_actual": actual_ell,
+        "b_min": b_min,
+        "c_support": c_support,
+        "c_report": c_report,
+        "scale_grid": B,
+        "use_residuals": use_residuals,
+    }
