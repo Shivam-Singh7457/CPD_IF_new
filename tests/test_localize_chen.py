@@ -339,3 +339,55 @@ def test_scale_grid_b_union_b0():
             f"Geometric ratio must be 2^(1/2), got {ratio:.6f}"
         )
 
+
+
+def test_new_mode_anchor_excluded_then_reported():
+    """G5 (Task B): In inference_mode='new', anchor j_hat must be excluded from
+    S_hat (support_CI) and re-added to support_report = S_hat U {j_hat}.
+    """
+    p = 20
+    T = 2500
+    m0 = 500
+    cp = 1500
+    rng = np.random.default_rng(20261027)
+
+    X = rng.standard_normal((T, p))
+    changed_coords = [3, 7, 11]
+    for c in changed_coords:
+        X[cp:, c] += 2.0
+
+    fit = fit_training(X[:m0], m0=m0, method="proposed")
+    alarm_N = 1550
+    m_star = 50
+
+    res_new = localize_chen(
+        alarm_N, m_star, X, fit,
+        extra_obs=0, c_support=0.35, c_rep=0.8, b_min=0.1,
+        inference_mode="new",
+    )
+    assert res_new["inference_mode"] == "new"
+    assert "j_hat" in res_new
+
+    j_hat = res_new["j_hat"]
+    assert j_hat not in res_new["support_CI"], f"anchor {j_hat} must be excluded from support_CI"
+    assert j_hat in res_new["support_report"], f"anchor {j_hat} must be in support_report"
+    assert set(res_new["support_CI"]).issubset(set(res_new["support_report"]))
+
+    res_leg = localize_chen(
+        alarm_N, m_star, X, fit,
+        extra_obs=20, c_support=0.35, c_report=0.8, b_min=0.1,
+        inference_mode="legacy",
+    )
+    assert res_leg["inference_mode"] == "legacy"
+    assert "j_hat" not in res_leg
+
+    res_default = localize_chen(
+        alarm_N, m_star, X, fit,
+        extra_obs=20, c_support=0.35, c_report=0.8, b_min=0.1,
+    )
+    assert res_default["inference_mode"] == "legacy"
+
+    ci_lo, ci_hi = res_new["CI"]
+    assert ci_lo <= ci_hi
+    assert ci_hi == alarm_N
+    assert ci_lo >= m0
