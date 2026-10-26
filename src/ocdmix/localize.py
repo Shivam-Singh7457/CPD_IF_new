@@ -356,21 +356,33 @@ def localize_chen(
 
     # ------------------------------------------------------------------
     # F4: Tail length t_j  (signed CUSUM, sum to N only)
+    #
+    # CWS Algorithm 1: t_j = SMALLEST maximiser over h ∈ [0, max_h] of
+    #   b̃_j · Σ_{i=N-h+1}^{N} (ζ_{i,j} − b̃_j/2)
+    # = b̃_j · cumsum(h) − h · b̃_j² / 2
+    # where cumsum(h) = Σ_{i=N-h+1}^{N} ζ_{i,j}.
+    #
+    # "Smallest maximiser" means we keep the FIRST h that attains the
+    # running maximum (i.e. update only on STRICT improvement).  h=0
+    # gives objective value 0.0 and is the initial baseline.
     # ------------------------------------------------------------------
     t_j = np.zeros(p, dtype=int)
     max_h = min(kmax, N - m0)
     for j in support:
         bj = b_tilde[j]
-        best_val = 0.0   # h = 0 baseline
+        best_val = 0.0   # h = 0 baseline (objective = 0)
         best_h = 0
         cumsum = 0.0
+        # Walk h = 1, 2, ... ; cumsum accumulates zeta[N], zeta[N-1], ...
+        # so after iteration hh: cumsum = Σ_{i=N-hh+1}^{N} ζ_{i,j}
         for hh in range(1, max_h + 1):
             idx = N - hh + 1
             if idx < 0:
                 break
             cumsum += zeta[idx, j]
             val = bj * cumsum - hh * bj * bj / 2.0
-            if val > best_val or (val == best_val and best_h == 0):
+            # STRICT improvement only → smallest maximiser is kept
+            if val > best_val:
                 best_val = val
                 best_h = hh
         t_j[j] = best_h
