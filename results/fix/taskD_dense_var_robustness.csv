@@ -1,0 +1,5 @@
+phi,structure,n_streams,n_false_alarms,far,far_se,is_controlled_under_010
+0.0,isotropic,200,11,0.055,0.016120638945153507,True
+0.3,dense,200,14,0.07,0.01804161855266872,True
+0.6,dense,200,30,0.15,0.025248762345905194,False
+0.8,dense,200,61,0.305,0.03255572146336186,False
