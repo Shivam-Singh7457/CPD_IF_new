@@ -1,0 +1,87 @@
+<USER_REQUEST>
+ROLE
+You are modifying an existing, mostly-validated research codebase: OCD-Mix (src/ocdmix/: fit.py, scan.py, online.py, calibrate.py, localize.py, metrics.py, io.py), an online change-point detector for high-dimensional α-mixing VAR(1) streams. It is an extension of Chen, Wang & Samworth (2024, JASA, "ocd_CI") using long-run-variance (LRV) normalisation, with ideas from Madrid Padilla et al. (NeurIPS 2023, mixing conditions).
+
+PRIME DIRECTIVE
+Do NOT break what already works. Make the smallest changes that satisfy the tasks below. If a change would alter any frozen result in the FREEZE list, stop, revert, and report instead of proceeding. Do not refactor, rename, reformat, or "improve" anything outside the scope listed.
+
+STEP 0 – SETUP (no code changes yet)
+1. Create branch `ocdmix-inference-fix`. Run `pytest -v` and save the output to results/baseline_pytest.txt. All of T0–T9 must pass before you start.
+2. Run the existing experiment pipeline (README Steps 1–7) and copy every CSV in results/ to results/frozen_before/. These are the regression references. Use the same seeds as the repo uses.
+3. Read localize.py and calibrate.py fully before editing. Tell me which functions implement: location (m*, ν̂), support Ŝ, CI, and the a(r̄) multiplier.
+
+FREEZE LIST (must stay numerically identical, byte-identical CSVs where seeds are fixed)
+- fit.py: marginal mean, AR(1) coefficients (clip ±0.95), prewhitened Bartlett LRV (L_e=5), σ̂²=ω̂/(1−r̂)², v̂_{k,j}, ŝ²_{k,j}=k·v̂_{k,j}+k²σ̂²/m0.
+- scan.py: dyadic windows K={8,…,512}, statistics A_{t,k}, Q_{t,k}, alarm rule N and t_N.
+- online.py: O(p|K|) per-step cost, memory flat from 5k to 50k steps (drift < 1 KiB), batch/online equivalence (T4/T5).
+- calibrate.py: empirical thresholds c_A, c_Q and self-calibration. Reference values at n=4000 (split): c_A = 1.5430, 1.5452, 1.5628, 1.6038 and c_Q = 6.8487, 6.8817, 6.8519, 6.9776 for φ = 0, 0.3, 0.6, 0.8. Out-of-sample FAR must stay in 0.0455–0.056.
+- Null FAR: Proposed ≤ ~0.105 for all φ; Vanilla = 1.0 for φ ≥ 0.3.
+- Detection delays (mean, proposed) must remain ~15/27/58/125 (effect 1.0) and ~7/11/23/50 (effect 1.5) for φ = 0/0.3/0.6/0.8; detection rates unchanged.
+- All pytest tests T0–T9, byte-identical CSV reproducibility (T9), and blindness (T8: the detector must never read ground truth).
+Any diff in the frozen_before CSVs for these items is a failure.
+
+TASKS (only localize.py, its calling code, metrics.py where needed, and plotting scripts)
+
+Task A – Fix the signed-scale bug in the tail-length computation.
+Current: t_j = argmax_{0≤h≤kmax} Σ_{i=N−h+1}^{N} (ζ_ij − b̃_j/2). This is wrong for b̃_j < 0.
+Correct (CWS): t_j = smallest maximiser over h of b̃_j · Σ_{i=N−h+1}^{N} (ζ_ij − b̃_j/2), where ζ_ij = (X_ij − µ̂_j)/σ̂_j. Use the SMALLEST maximiser on ties. Add a unit test with a negative-shift coordinate (θ_j < 0) showing the tail length now matches the positive-shift mirror image.
+
+Task B – Make the support/CI rule follow CWS Algorithm 1 (implement as a new function; keep the old rule available behind a flag `inference_mode="legacy"`; default to the new mode only after validation passes).
+Let ℓ ≥ 0 be extra post-alarm observations (parameter; default 0; also evaluate ℓ ∈ {20, 50}), k = m* + ℓ.
+1. Anchor: ĵ = argmax_j |W_{N,m*,j}|.
+2. E_j = Σ_{i=N−m*+1}^{N+ℓ} (X_ij − µ̂_j) / ŝ_{k,j}, using the finite-window ŝ from fit.py (NOT σ̂·√k).
+3. Scale grid: B0 = {±b_min}, B = {±2^{m/2} b_min : m = 1..log2(2p)}. Take the b_min formula verbatim from CWS Algorithm 1 (the "Set:" line); the PDF text extraction of it was garbled in my notes, so look it up in the paper rather than guessing. Express b_min in long-run-standardised units. Use B∪B0 (not B alone) when computing b̃_j.
+4. Support: Ŝ = { j ≠ ĵ : |E_j| − b_min·√k ≥ d1 }, d1 = c·√log(p/α). Reported support = Ŝ ∪ {ĵ}.
+5. b̃_j = sgn(E_j) · max{ b ∈ (B∪B0)∩(0,∞) : |E_j| − b·√k ≥ d1 }.
+6. CI = [ max( N − min_{j∈Ŝ}( t_j + 4·d1²/b̃_j² ), m0 ), N ].
+7. Search h over 0 ≤ h ≤ N − m0 (the available post-training history), NOT capped at kmax=512. If this needs more memory than O(p·kmax), do NOT change online memory; instead compute tails with the existing ring buffer and flag if the cap truncates (report the truncation rate per φ).
+8. Keep TWO constants as CWS do: c_CI (for the CI) and c_rep (for the reported support). Starting values from our data: c_rep = 0.8 (Jaccard-tuned). For c_CI start at 0.5 (the CWS default; our calibration grid showed coverage at c=0.46 of 1.00/1.00/0.985/0.969 for φ=0/0.3/0.6/0.8, and needed c ≥ 0.35/0.35/0.39/0.40 for 95%).
+9. Remove the dependence on a(r̄) in the new mode. Keep a(r̄)=0.1222+1.1604·r̄ only in legacy mode. Do not delete it.
+
+Task C – Honest validation protocol (important).
+- Calibrate c_CI and c_rep on a CALIBRATION set of simulated change streams, then report coverage / Jaccard on a SEPARATE held-out evaluation set with different seeds. The earlier `task4_f5_c_calib.csv` numbers were in-sample ("cicalib") and are not valid evidence.
+- Use ≥ 1000 change streams per (φ, effect) for the evaluation set; report coverage with binomial SE.
+- Settings: p=50, T=5000, m0=1000, b=2500, sparsity 10%, φ ∈ {0, 0.3, 0.6, 0.8}, effects {1.0, 1.5}.
+- Pick the smallest c_CI (single value, shared across φ if possible) that gives coverage ≥ 0.95 − 1 SE at EVERY φ on the calibration set; then verify on held-out. If one shared c fails at φ=0.8, allow c_CI to depend on r̄ through a simple monotone rule and justify it.
+
+Task D – Detector-side robustness check (read-only unless it fails).
+Add one extra validation scenario where A is NOT diagonal (e.g., a random stable VAR(1) with ‖A‖ ≈ φ, off-diagonal mass present, same marginal normalisation). Report null FAR with the existing calibration procedure. Do NOT modify fit/scan to fix it; just report results and whether the AR(1)-per-coordinate finite-window correction (eq. 6) is adequate. Then update the doc tags so [V] says "validated for diagonal A" unless this passes.
+
+Task E – Figures (regenerate only; do not change data generation).
+- fig3: y-axis in %, 95% reference line, show NEW-mode CI coverage vs φ for both effects, with the legacy a(r̄) line for comparison. Held-out data only.
+- fig4: must be Default z₀=3.2905 vs Tuned z*=2.7100 Jaccard vs φ (NOT proposed vs vanilla). Tuned above default. Report the actual gains; do not claim they widen with φ unless the data show it (measured gains were ≈ +0.103, +0.105, +0.092, +0.102).
+- fig2: plot Proposed only for φ ≥ 0.3; Vanilla only at φ=0 with the existing note. Remove vanilla triangles at φ=0.3.
+- fig1, fig5: leave untouched (they pass); only fix the fig5 legend overlapping the p=200 line in panel (b).
+
+Task F – Documentation.
+Update final_equations.tex to: (a) fix the "(??)" references to (6) and (7); (b) replace Sec. 4 inference rules with the new ones and mark them [V] only if Task C held-out validation passes, otherwise [I]; (c) state explicitly that Theorem 1 assumes known variances and that FAR inflation at high φ reflects estimating σ̂ from m0 observations; (d) note that the detector's Q is a dense ℓ2 statistic (no thresholded ℓ2 as in the ocd base procedure); do NOT add a thresholded Q.
+
+ACCEPTANCE GATES (all must pass, otherwise report and stop)
+G1. pytest T0–T9 all pass; reproducibility T9 byte-identical.
+G2. Every file in results/frozen_before/ for null FAR, detection rate, delay, thresholds, memory, throughput is unchanged (diff = 0) except files that Tasks A–E intentionally regenerate (CI coverage, support, figs 2–4).
+G3. Held-out CI coverage in new mode ≥ 0.95 − 1 SE at every φ and effect; report mean CI width and width / mean-delay ratio (CWS found CI length typically 2–3× the delay, <7× always; flag if worse).
+G4. Support: with c_rep, held-out Jaccard ≥ the Bonferroni-3.29 Jaccard at every φ; with c_CI and ℓ=0, recall of Ŝ∪{ĵ} reported, and recall must increase with ℓ ∈ {0, 20, 50}.
+G5. New unit tests: negative-shift tail length (Task A), anchor excluded from Ŝ and re-added to the reported set, B∪B0 grid, smallest-maximiser tie-breaking.
+G6. No test or script reads ground truth inside src/ocdmix (blindness).
+
+BASELINES (only after G1–G6 pass)
+Re-run the full comparison of Proposed (new mode), Proposed (legacy mode), and Vanilla (marginal-variance normalised) on: null FAR, detection rate, mean delay, CI coverage/width, support Jaccard, runtime (µs/update), memory. Use identical seeds across methods. Output one summary table per φ and a single results/FINAL_SUMMARY.md listing every number, its CSV source, and PASS/FAIL against the gates. Do not tune anything on the evaluation seeds.
+
+REPORTING RULES
+- After each task, show a diff summary and the gate results before moving on.
+- If any result is worse than the legacy mode, say so plainly; do not hide it, and do not re-tune to make it look better on evaluation data.
+- Do not introduce new dependencies without asking.
+- Commit after each task with a message naming the task letter.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-26T14:14:51+05:30.
+
+The user's current state is as follows:
+Active Document: d:\OCD_CI_extended\pyproject.toml (LANGUAGE_TOML)
+Cursor is on line: 20
+Other open documents:
+- d:\OCD_CI_extended\pyproject.toml (LANGUAGE_TOML)
+</ADDITIONAL_METADATA>
+<USER_SETTINGS_CHANGE>
+The user changed setting `Model Selection` from None to Claude Sonnet 4.6 (Thinking). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
+</USER_SETTINGS_CHANGE>

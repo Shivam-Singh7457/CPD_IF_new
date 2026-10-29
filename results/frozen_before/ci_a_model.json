@@ -1,0 +1,47 @@
+{
+  "model": "linear",
+  "c0": 0.12217780518274297,
+  "c1": 1.1603539946828383,
+  "per_phi_calibration": [
+    {
+      "phi": 0.0,
+      "tag": "00",
+      "dataset": "cicalib_phi00",
+      "n_detected": 199,
+      "calibrated_a": 0.251,
+      "achieved_coverage": 0.9547738693467337,
+      "mean_r_hat": -0.001483049421770379,
+      "median_abs_error": 1.0
+    },
+    {
+      "phi": 0.3,
+      "tag": "03",
+      "dataset": "cicalib_phi03",
+      "n_detected": 193,
+      "calibrated_a": 0.385,
+      "achieved_coverage": 0.9533678756476683,
+      "mean_r_hat": 0.29858968070900505,
+      "median_abs_error": 1.0
+    },
+    {
+      "phi": 0.6,
+      "tag": "06",
+      "dataset": "cicalib",
+      "n_detected": 199,
+      "calibrated_a": 0.501,
+      "achieved_coverage": 0.9547738693467337,
+      "mean_r_hat": 0.5976782915471572,
+      "median_abs_error": 2.0
+    },
+    {
+      "phi": 0.8,
+      "tag": "08",
+      "dataset": "cicalib_phi08",
+      "n_detected": 190,
+      "calibrated_a": 1.314,
+      "achieved_coverage": 0.9526315789473684,
+      "mean_r_hat": 0.796327262120325,
+      "median_abs_error": 4.0
+    }
+  ]
+}

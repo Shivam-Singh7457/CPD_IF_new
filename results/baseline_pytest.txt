@@ -1,0 +1,46 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.7.0 -- C:\Users\Dell\AppData\Local\Programs\Python\Python311\python.exe
+cachedir: .pytest_cache
+rootdir: D:\OCD_CI_extended
+configfile: pyproject.toml
+collecting ... collected 27 items
+
+tests/test_blindness.py::test_blindness_source_inspection PASSED         [  3%]
+tests/test_blindness.py::test_blindness_runtime_without_ground_truth PASSED [  7%]
+tests/test_calibrate.py::test_reduction_to_independence_t6 PASSED        [ 11%]
+tests/test_fast_generator.py::TestFastGenerator::test_marginal_variance PASSED [ 14%]
+tests/test_fast_generator.py::TestFastGenerator::test_long_run_variance PASSED [ 18%]
+tests/test_fast_generator.py::TestFastGenerator::test_cli_produces_output PASSED [ 22%]
+tests/test_fit.py::test_lrv_accuracy_t1[0.3] PASSED                      [ 25%]
+tests/test_fit.py::test_lrv_accuracy_t1[0.6] PASSED                      [ 29%]
+tests/test_fit.py::test_lrv_accuracy_t1[0.8] PASSED                      [ 33%]
+tests/test_localize_chen.py::test_make_scale_grid PASSED                 [ 37%]
+tests/test_localize_chen.py::test_symmetry_positive_negative_shift PASSED [ 40%]
+tests/test_localize_chen.py::test_support_and_confidence_interval PASSED [ 44%]
+tests/test_localize_chen.py::test_prewhitened_residual_variant PASSED    [ 48%]
+tests/test_localize_chen.py::test_decoupled_support_ci_and_report PASSED [ 51%]
+tests/test_localize_chen.py::test_negative_shift_tail_length_matches_positive_mirror PASSED [ 55%]
+tests/test_localize_chen.py::test_smallest_maximiser_tie_breaking PASSED [ 59%]
+tests/test_localize_chen.py::test_scale_grid_b_union_b0 PASSED           [ 62%]
+tests/test_localize_chen.py::test_new_mode_anchor_excluded_then_reported PASSED [ 66%]
+tests/test_online.py::test_batch_vs_online_t4 PASSED                     [ 70%]
+tests/test_online.py::test_constant_memory_t5 PASSED                     [ 74%]
+tests/test_power.py::test_power_sanity_t7 PASSED                         [ 77%]
+tests/test_reproducibility.py::test_reproducibility_t9 PASSED            [ 81%]
+tests/test_scan.py::test_window_sums_t3 PASSED                           [ 85%]
+tests/test_scan.py::test_standardisation_t2[0.0] PASSED                  [ 88%]
+tests/test_scan.py::test_standardisation_t2[0.3] PASSED                  [ 92%]
+tests/test_scan.py::test_standardisation_t2[0.6] PASSED                  [ 96%]
+tests/test_scan.py::test_standardisation_t2[0.8] PASSED                  [100%]
+
+============================== warnings summary ===============================
+tests/test_fast_generator.py::TestFastGenerator::test_marginal_variance
+  C:\Users\Dell\AppData\Local\Programs\Python\Python311\Lib\site-packages\_pytest\fixtures.py:1313: PytestRemovedIn10Warning: Class-scoped fixture defined as instance method is deprecated.
+  Instance attributes set in this fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use @classmethod decorator and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 27 passed, 1 warning in 777.36s (0:12:57) ==================

@@ -12,6 +12,9 @@ import numpy as np
 import pandas as pd
 
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
 def set_matplotlib_style() -> None:
     plt.rcParams.update({
         "font.family": "sans-serif",
@@ -149,8 +152,9 @@ def make_figures_and_tables(
                 marker=markers["proposed"],
             )
 
-        # Vanilla baseline: only plot points where delay is not null (i.e. phi=0)
+        # Vanilla baseline: only plot points where phi=0
         sub_van = change_df[(change_df["effect"] == eff) & (change_df["method"] == "vanilla")].dropna(subset=["mean_delay"]).sort_values("phi")
+        sub_van = sub_van[sub_van["phi"] == 0.0]
         if not sub_van.empty:
             ax.plot(
                 sub_van["phi"], sub_van["mean_delay"],
@@ -174,52 +178,75 @@ def make_figures_and_tables(
     plt.close(fig)
 
     # -------------------------------------------------------------
-    # Figure 3: CI coverage vs phi (proposed method)
+    # Figure 3: CI coverage vs phi (y-axis in %, 95% ref line, New vs Legacy)
     # -------------------------------------------------------------
-    fig, ax = plt.subplots(figsize=(6.5, 4.5), dpi=300)
-    for eff in ["1.0", "1.5"]:
-        sub = change_df[(change_df["effect"] == eff) & (change_df["method"] == "proposed")].sort_values("phi")
-        if not sub.empty and "coverage" in sub.columns:
-            ax.errorbar(
-                sub["phi"], sub["coverage"],
-                yerr=sub["coverage_se"],
-                label=f"Proposed (Effect {eff})",
-                marker="o", capsize=4,
-            )
-    ax.axhline(0.95, color="red", linestyle=":", label="Nominal 95% Coverage")
+    fig, ax = plt.subplots(figsize=(6.8, 4.8), dpi=300)
+    taskC_csv = PROJECT_ROOT / "results" / "fix" / "taskC_eval_coverage.csv"
+    leg_csv = tables_dir / "ci_coverage_eval.csv"
+
+    # Held-out New Mode data
+    if taskC_csv.exists():
+        c_df = pd.read_csv(taskC_csv)
+        c_df0 = c_df[c_df["extra_obs"] == 0].sort_values("phi")
+        for eff, col, marker in [("1.0", "#1f77b4", "o"), ("1.5", "#2ca02c", "^")]:
+            sub_c = c_df0[c_df0["effect"] == float(eff)]
+            if not sub_c.empty:
+                ax.errorbar(
+                    sub_c["phi"], sub_c["coverage"] * 100.0,
+                    yerr=sub_c["coverage_se"] * 100.0,
+                    label=f"Proposed New CWS (Effect {eff})",
+                    color=col, marker=marker, linestyle="-", capsize=4, linewidth=2,
+                )
+
+    # Legacy a(r̄) comparison line
+    if leg_csv.exists():
+        l_df = pd.read_csv(leg_csv).sort_values("phi")
+        for eff, col in [("1.0", "#1f77b4"), ("1.5", "#2ca02c")]:
+            sub_l = l_df[l_df["effect"] == float(eff)]
+            if not sub_l.empty and "coverage_a_rhat" in sub_l.columns:
+                ax.plot(
+                    sub_l["phi"], sub_l["coverage_a_rhat"] * 100.0,
+                    label=f"Legacy $a(\\bar{{r}})$ (Effect {eff})",
+                    color=col, linestyle="--", marker="s", alpha=0.8,
+                )
+
+    ax.axhline(95.0, color="red", linestyle=":", linewidth=1.5, label="Nominal 95% Reference")
     ax.set_xlabel("Temporal dependence parameter $\\phi$")
-    ax.set_ylabel("Empirical Confidence Interval Coverage")
-    ax.set_title("95% Confidence Interval Coverage vs $\\phi$")
-    ax.set_ylim(0.70, 1.02)
-    ax.legend(loc="lower left")
+    ax.set_ylabel("Empirical Confidence Interval Coverage (%)")
+    ax.set_title("95% Confidence Interval Coverage vs $\\phi$ (Held-Out Evaluation)")
+    ax.set_ylim(70, 103)
+    ax.legend(loc="lower left", fontsize=9)
     fig.savefig(figures_dir / "fig3_ci_coverage_vs_phi.png", bbox_inches="tight")
     plt.close(fig)
 
     # -------------------------------------------------------------
-    # Figure 4: Support Jaccard vs phi
+    # Figure 4: Support Jaccard vs phi: Default z0=3.2905 vs Tuned z*=2.7100
     # -------------------------------------------------------------
-    fig, ax = plt.subplots(figsize=(6.5, 4.5), dpi=300)
-    for eff in ["1.0", "1.5"]:
-        for method in ["proposed", "vanilla"]:
-            sub = change_df[(change_df["effect"] == eff) & (change_df["method"] == method)].sort_values("phi")
-            if not sub.empty and "mean_support_jaccard" in sub.columns and sub["mean_support_jaccard"].notna().any():
-                label_txt = f"{method.capitalize()} (Effect {eff})"
-                if method == "vanilla":
-                    label_txt += " [$\\phi=0$ only]"
+    fig, ax = plt.subplots(figsize=(6.8, 4.8), dpi=300)
+    supp_csv = tables_dir / "support_recovery_eval.csv"
+    if supp_csv.exists():
+        sdf = pd.read_csv(supp_csv).sort_values("phi")
+        for eff, col in [("1.0", "#1f77b4"), ("1.5", "#2ca02c")]:
+            sub_s = sdf[sdf["effect"] == float(eff)]
+            if not sub_s.empty:
+                # Tuned above default
                 ax.plot(
-                    sub["phi"], sub["mean_support_jaccard"],
-                    label=label_txt,
-                    linestyle=styles[method],
-                    marker=markers[method],
-                    color=colors[eff],
+                    sub_s["phi"], sub_s["tuned_jaccard"],
+                    label=f"Tuned $z^*=2.7100$ (Effect {eff})",
+                    color=col, linestyle="-", marker="o", linewidth=2,
                 )
-    ax.set_xlabel("Temporal dependence parameter $\\phi$")
-    ax.set_ylabel("Mean Support Jaccard Similarity")
-    ax.set_title("Coordinate Support Recovery (Jaccard Index) vs $\\phi$")
-    ax.set_ylim(-0.05, 1.05)
-    ax.legend(loc="upper right")
-    fig.savefig(figures_dir / "fig4_support_jaccard_vs_phi.png", bbox_inches="tight")
-    plt.close(fig)
+                ax.plot(
+                    sub_s["phi"], sub_s["default_jaccard"],
+                    label=f"Default $z_0=3.2905$ (Effect {eff})",
+                    color=col, linestyle="--", marker="s", alpha=0.8,
+                )
+        ax.set_xlabel("Temporal dependence parameter $\\phi$")
+        ax.set_ylabel("Mean Support Jaccard Similarity")
+        ax.set_title("Support Recovery: Default ($z_0=3.2905$) vs Tuned ($z^*=2.7100$)")
+        ax.set_ylim(0.50, 0.95)
+        ax.legend(loc="lower left", fontsize=9)
+        fig.savefig(figures_dir / "fig4_support_jaccard_vs_phi.png", bbox_inches="tight")
+        plt.close(fig)
 
     # -------------------------------------------------------------
     # Figure 5: Two-panel memory benchmark (Footprint vs p; Live memory vs steps)
@@ -257,7 +284,8 @@ def make_figures_and_tables(
         ax2.set_xlabel("Observations Processed (steps)")
         ax2.set_ylabel("Live Traced Memory (KiB)")
         ax2.set_title("(b) Live Memory vs Stream Steps")
-        ax2.legend(loc="center left")
+        ax2.set_ylim(300, 6500)
+        ax2.legend(loc="upper left")
 
         fig.savefig(figures_dir / "fig5_memory_vs_stream_length.png", bbox_inches="tight")
         plt.close(fig)

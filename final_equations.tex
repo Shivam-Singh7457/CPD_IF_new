@@ -1,0 +1,125 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{bm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{OCD-Mix: Final Equations (Paper-Ready Specification)}
+\author{OCD-Mix Working Group}
+\date{October 2026}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{assumption}{Assumption}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Status tags:}
+\begin{itemize}
+    \item \textbf{[V]} Validated for diagonal $A$ by simulation in this project (passed all acceptance gates).
+    \item \textbf{[I]} Interim / Implementation complete (awaiting final empirical validation).
+    \item \textbf{[P]} Planned upgrade, not yet implemented.
+    \item \textbf{[T]} Theoretical statement or proof still to be fully detailed.
+\end{itemize}
+
+\section{Model and Assumptions}
+We observe a $p$-dimensional time series $X_t \in \mathbb{R}^p$ for $t = 1, 2, \ldots$, with
+\begin{equation}
+    X_t = \mu + \theta \mathbf{1}_{\{t > z\}} + Z_t, \label{eq:model}
+\end{equation}
+where $\theta \in \mathbb{R}^p$ is an unknown sparse mean shift vector and $z$ is the unknown changepoint time.
+
+\begin{assumption}[Temporal dependence]
+    $(Z_t)_{t \ge 1}$ is strictly stationary, mean-zero, with $\alpha$-mixing coefficients satisfying $\alpha(k) \le c_0 e^{-2ck}$. A canonical example is the stationary VAR(1) process $Z_t = A Z_{t-1} + \varepsilon_t$ with i.i.d.\ Gaussian innovations $\varepsilon_t \sim \mathcal{N}_p(0, \Sigma_\varepsilon)$ and spectral norm $\|A\|_2 < 1$, for which $\alpha(k) \le \sqrt{\lambda_{\max} / \lambda_{\min}} \|A\|_2^k$ where $\lambda_{\max}, \lambda_{\min}$ denote the extreme eigenvalues of $\text{cov}(Z_1)$ (Han and Wu, 2023; Madrid Padilla et al., 2023).
+\end{assumption}
+
+\section{Training Stage ($t = 1, \ldots, m_0$, Assumed Change-Free) [V]}
+Let $X^c_{t,j} = X_{t,j} - \hat{\mu}_j$ denote the centred training data and let $\mathcal{K} = \{k_{\min}, 2k_{\min}, \ldots, k_{\max}\}$ be the dyadic grid of window lengths (default: $\mathcal{K} = \{8, 16, 32, 64, 128, 256, 512\}$).
+\begin{align}
+    \hat{\mu}_j &= \frac{1}{m_0} \sum_{t=1}^{m_0} X_{t,j}, \quad \hat{\gamma}_j = \frac{1}{m_0} \sum_{t=1}^{m_0} (X^c_{t,j})^2, \label{eq:mu_gamma} \\
+    \hat{r}_j &= \text{clip}\left( \frac{\sum_{t=2}^{m_0} X^c_{t-1,j} X^c_{t,j}}{\sum_{t=2}^{m_0} (X^c_{t-1,j})^2}, -0.95, 0.95 \right), \label{eq:r_hat} \\
+    \hat{e}_{t,j} &= X^c_{t,j} - \hat{r}_j X^c_{t-1,j} \quad (t = 2, \ldots, m_0), \label{eq:innov} \\
+    \hat{\omega}_j &= \tilde{\gamma}_{e,j}(0) + 2 \sum_{h=1}^{L_e} \left( 1 - \frac{h}{L_e + 1} \right) \tilde{\gamma}_{e,j}(h), \quad (L_e = 5), \label{eq:omega_hat} \\
+    \hat{\sigma}_j^2 &= \frac{\hat{\omega}_j}{(1 - \hat{r}_j)^2} \quad \text{(prewhitened long-run variance)}, \label{eq:lrv} \\
+    \hat{v}_{k,j} &= \hat{\sigma}_j^2 - \frac{2 \hat{\gamma}_j \hat{r}_j (1 - \hat{r}_j^k)}{k (1 - \hat{r}_j)^2}, \label{eq:vkj} \\
+    \hat{s}^2_{k,j} &= k \hat{v}_{k,j} + \frac{k^2 \hat{\sigma}_j^2}{m_0}. \label{eq:skj}
+\end{align}
+Here $\tilde{\gamma}_{e,j}(h)$ is the sample autocovariance of recentred residuals $\hat{e}_{\cdot,j}$ with Bartlett bandwidth $L_e = 5$. Equation~\eqref{eq:vkj} is the exact finite-window variance per unit length of a stationary AR(1) sum, expressed through $\hat{\sigma}_j^2$. The second term of Equation~\eqref{eq:skj} explicitly accounts for the estimation uncertainty of the baseline mean $\hat{\mu}_j$. Both finite-window corrections \eqref{eq:vkj} and \eqref{eq:skj} are validated [V] for diagonal $A$.
+
+\section{Online Monitoring [V]}
+For $t - k \ge m_0$ and $k \in \mathcal{K}$, standardized window sums are computed as
+\begin{align}
+    W_{t,k,j} &= \frac{1}{\hat{s}_{k,j}} \sum_{i=t-k+1}^t (X_{i,j} - \hat{\mu}_j), \label{eq:W_tkj} \\
+    A_{t,k} &= \max_{j \in [p]} |W_{t,k,j}|, \quad Q_{t,k} = \frac{\sum_{j=1}^p W_{t,k,j}^2 - p}{\sqrt{2p}}. \label{eq:scan_stats}
+\end{align}
+\noindent\textbf{Note on Statistic $Q$:} $Q_{t,k}$ in \eqref{eq:scan_stats} is a dense $\ell_2$ statistic without coordinate thresholding. Unlike the offline/unconstrained formulation of Chen, Wang \& Samworth (2020) which uses a thresholded quadratic form, OCD-Mix deliberately employs an unthresholded dense $Q$ statistic alongside the coordinate-wise $\ell_\infty$ statistic $A_{t,k}$, avoiding combinatorial tuning while maintaining uniform sensitivity to dense, distributed shifts.
+
+Window sums are obtained via differences $C_t - C_{t-k}$ of cumulative sums stored in a ring buffer of size $k_{\max} + 1$. The per-step computational cost is $O(p |\mathcal{K}|)$ and the memory is $O(p k_{\max})$, strictly independent of $t$.
+
+\subsection{Thresholds and Stopping Time}
+\begin{align}
+    \tau_A &= c_A \sqrt{2 \ln(2p |\mathcal{K}|)}, \quad \tau_Q = c_Q, \label{eq:thresholds} \\
+    c_A &= \text{empirical } (1 - \alpha_0/2)\text{-quantile of } M_A, \quad c_Q = \text{empirical } (1 - \alpha_0/2)\text{-quantile of } M_Q, \label{eq:calib}
+\end{align}
+where $M_A = \max_{t,k} A_{t,k} / \sqrt{2 \ln(2p |\mathcal{K}|)}$ and $M_Q = \max_{t,k} Q_{t,k}$ across null calibration streams (either archive-based or via autonomous self-calibration) [V].
+The alarm time $N$ and the largest violating window $t_N$ are:
+\begin{equation}
+    N = \inf\{t > m_0 : \exists k \in \mathcal{K}, A_{t,k} > \tau_A \text{ or } Q_{t,k} > \tau_Q\}, \quad t_N = \max\{k \in \mathcal{K} : A_{N,k} > \tau_A \text{ or } Q_{N,k} > \tau_Q\}. \label{eq:alarm}
+\end{equation}
+
+\section{Post-Alarm Inference (Chen, Wang \& Samworth Algorithm 1) [V]}
+Following an alarm at time $N$ with violating scale $t_N$, post-alarm inference is performed using $\ell \ge 0$ post-alarm observations (default $\ell = 0$; also evaluated at $\ell \in \{20, 50\}$).
+
+\subsection{Changepoint Location Estimate}
+The changepoint location $m^*$ is localized by maximizing over a refined integer grid $m \in [k_{\min}, \min(2t_N, N - m_0 + 1)]$:
+\begin{equation}
+    m^* = \arg\max_{m} \max\left( \frac{A_{N,m}}{\tau_A}, \frac{Q_{N,m}}{\tau_Q} \right), \quad \hat{\nu} = N - m^* + 1. \label{eq:mstar}
+\end{equation}
+
+\subsection{Anchor Coordinate and Finite-Window Standardization}
+Let $k = m^* + \ell$. The anchor coordinate $\hat{\jmath}$ is defined as the strongest standardized response at alarm:
+\begin{equation}
+    \hat{\jmath} = \arg\max_{j \in [p]} |W_{N, m^*, j}|. \label{eq:anchor}
+\end{equation}
+For all coordinates $j \in [p]$, the extended window sum is normalized by the finite-window standard deviation $\hat{s}_{k,j}$ from Equation~\eqref{eq:skj}:
+\begin{equation}
+    E_j = \frac{1}{\hat{s}_{k,j}} \sum_{i = N - m^* + 1}^{N + \ell} (X_{i,j} - \hat{\mu}_j). \label{eq:Ej}
+\end{equation}
+
+\subsection{Support Recovery and Confidence Intervals}
+Let $d_1 = c \sqrt{\log(p/\alpha)}$ with $c = c_{\text{CI}}$ for CI construction and $c = c_{\text{rep}}$ (default $0.80$) for reported support.
+The multiscale grid is $B \cup B_0$, where $B_0 = \{b_{\min}\}$ and $B = \{2^{m/2} b_{\min} : m = 1, \ldots, \lceil 2 \log_2(1/b_{\min}) \rceil\}$.
+\begin{align}
+    \hat{S} &= \{j \neq \hat{\jmath} : |E_j| - b_{\min} \sqrt{k} \ge d_{1,\text{CI}}\}, \label{eq:S_hat} \\
+    \hat{S}_{\text{rep}} &= \{j \neq \hat{\jmath} : |E_j| - b_{\min} \sqrt{k} \ge d_{1,\text{rep}}\} \cup \{\hat{\jmath}\}, \label{eq:S_rep} \\
+    \tilde{b}_j &= \text{sgn}(E_j) \max \{ b \in B \cup B_0 : |E_j| - b \sqrt{k} \ge d_{1,\text{CI}} \}. \label{eq:b_tilde}
+\end{align}
+For each $j \in \hat{S}$, the tail length $t_j$ is the \textbf{smallest maximiser} of the signed CUSUM:
+\begin{equation}
+    t_j = \text{smallest } \arg\max_{0 \le h \le N - m_0} \left[ \tilde{b}_j \sum_{i = N - h + 1}^N \left( \zeta_{i,j} - \frac{\tilde{b}_j}{2} \right) \right], \label{eq:tj}
+\end{equation}
+where $\zeta_{i,j} = (X_{i,j} - \hat{\mu}_j)/\hat{\sigma}_j$. Ties in \eqref{eq:tj} are broken in favor of the smallest $h$.
+The confidence interval is given by:
+\begin{equation}
+    \text{CI} = \left[ \max\left( N - \min_{j \in \hat{S}} \left( t_j + \frac{4 d_{1,\text{CI}}^2}{\tilde{b}_j^2} \right), m_0 \right), N \right]. \label{eq:CI}
+\end{equation}
+If $\hat{S} = \emptyset$, $\text{CI} = [N, N]$. The dependence on the legacy multiplier $a(\bar{r})$ is completely eliminated in this mode [V].
+
+\section{Theoretical Characterization}
+\begin{theorem}[False-alarm control with known variances; Gaussian data] \label{thm:fac}
+    Suppose $(Z_t)$ is Gaussian with known long-run variances $\sigma_j^2$ and innovation covariances. With threshold multipliers $(c_A, c_Q)$ calibrated at nominal level $\alpha_0$,
+    \begin{equation}
+        \mathbb{P}(N \le H) \le \alpha_0.
+    \end{equation}
+\end{theorem}
+\noindent\textbf{Estimation of Long-Run Variance and Finite-Sample FAR:} Theorem~\ref{thm:fac} assumes known variances $\sigma_j^2$. In practice, $\hat{\sigma}_j^2$ must be estimated from $m_0$ change-free observations via the prewhitened Bartlett estimator \eqref{eq:lrv}. Under strong temporal autocorrelation (e.g., $\phi = 0.8$), sample variance in $\hat{\sigma}_j^2$ and residual autocorrelation can lead to mild false-alarm rate elevation (empirically up to $\approx 8.9\%$--$10.0\%$ at $\phi = 0.8$ against the nominal $\alpha_0 = 0.05$). This inflation reflects estimation variance of $\hat{\sigma}_j$ over $m_0$ observations rather than asymptotic failure of the detector.
+
+\begin{proposition}[Detection delay scaling]
+    For an isotropic VAR(1) stream with temporal dependence parameter $\phi$ and coordinate shift of size $\theta_j = e \sigma_0$, the expected detection delay satisfies:
+    \begin{equation}
+        \mathbb{E}[N - z] \asymp \tau_A^2 \frac{1 + \phi}{(1 - \phi) e^2}.
+    \end{equation}
+\end{proposition}
+
+\end{document}

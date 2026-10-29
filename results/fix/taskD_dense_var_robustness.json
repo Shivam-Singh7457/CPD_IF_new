@@ -1,0 +1,42 @@
+{
+  "all_controlled": false,
+  "recommendation": "Off-diagonal coupling inflates null FAR; doc tags must specify [V] validated for diagonal A",
+  "results": {
+    "0.0": {
+      "phi": 0.0,
+      "structure": "isotropic",
+      "n_streams": 200,
+      "n_false_alarms": 11,
+      "far": 0.055,
+      "far_se": 0.016120638945153507,
+      "is_controlled_under_010": true
+    },
+    "0.3": {
+      "phi": 0.3,
+      "structure": "dense",
+      "n_streams": 200,
+      "n_false_alarms": 14,
+      "far": 0.07,
+      "far_se": 0.01804161855266872,
+      "is_controlled_under_010": true
+    },
+    "0.6": {
+      "phi": 0.6,
+      "structure": "dense",
+      "n_streams": 200,
+      "n_false_alarms": 30,
+      "far": 0.15,
+      "far_se": 0.025248762345905194,
+      "is_controlled_under_010": false
+    },
+    "0.8": {
+      "phi": 0.8,
+      "structure": "dense",
+      "n_streams": 200,
+      "n_false_alarms": 61,
+      "far": 0.305,
+      "far_se": 0.03255572146336186,
+      "is_controlled_under_010": false
+    }
+  }
+}

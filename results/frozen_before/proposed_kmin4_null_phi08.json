@@ -1,0 +1,13 @@
+{
+  "n_streams": 200,
+  "false_alarm_probability": 0.105,
+  "false_alarm_probability_se": 0.021676600286945368,
+  "censored_arl": 3776.355,
+  "dataset": "null_phi08",
+  "method": "proposed",
+  "lrv_method": "prewhiten",
+  "calib_json": "results/calib/proposed_kmin4_phi08.json",
+  "ci_a": 0.0,
+  "statistic": "both",
+  "k_min": 4
+}
