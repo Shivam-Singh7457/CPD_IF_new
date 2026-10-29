@@ -1,0 +1,8 @@
+{
+  "default_z": 3.2905267314919255,
+  "tuned_z": 2.71,
+  "cicalib_default_jaccard": 0.6711892797319933,
+  "cicalib_tuned_jaccard": 0.7691493180186649,
+  "cicalib_default_precision": 0.9789782244556113,
+  "cicalib_tuned_precision": 0.900634122995932
+}

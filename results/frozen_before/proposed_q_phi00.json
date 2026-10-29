@@ -1,0 +1,26 @@
+{
+  "c_A": Infinity,
+  "c_Q": 6.805402530269083,
+  "base_A": 3.619690687073525,
+  "tau_A": Infinity,
+  "tau_Q": 6.805402530269083,
+  "alpha0": 0.05,
+  "m0": 1000,
+  "method": "proposed",
+  "lrv_method": "prewhiten",
+  "window_grid": [
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512
+  ],
+  "kmax": 512,
+  "p": 50,
+  "T": 5000,
+  "n_streams": 400,
+  "achieved_far": 0.05,
+  "statistic": "q_only"
+}

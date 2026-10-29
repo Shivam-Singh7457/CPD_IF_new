@@ -1,0 +1,12 @@
+{
+  "n_streams": 200,
+  "false_alarm_probability": 0.045,
+  "false_alarm_probability_se": 0.014658615214269049,
+  "censored_arl": 3931.245,
+  "dataset": "null_phi00",
+  "method": "vanilla",
+  "lrv_method": "prewhiten",
+  "calib_json": "results/calib/vanilla_q.json",
+  "ci_a": 0.0,
+  "statistic": "q_only"
+}

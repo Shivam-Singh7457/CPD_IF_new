@@ -156,3 +156,4 @@ The report generation script `scripts/make_report.py` was updated and executed t
 3. `fig3_ci_coverage_vs_phi.png`: Y-axis formatted in %, 95% nominal reference line added, plotting held-out New CWS mode coverage alongside legacy $a(\bar{r})$ comparison.
 4. `fig4_support_jaccard_vs_phi.png`: Plots Tuned $z^*=2.7100$ vs Default $z_0=3.2905$ Jaccard vs $\phi$; Tuned lies strictly above Default across all $\phi$.
 5. `fig5_memory_vs_stream_length.png`: Y-limits adjusted in panel (b) to prevent the legend box from overlapping the horizontal $p=200$ line.
+
