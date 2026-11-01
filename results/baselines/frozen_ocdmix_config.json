@@ -1,0 +1,43 @@
+{
+  "algorithm": "OCD-Mix",
+  "version": "1.0-frozen",
+  "description": "Authoritative frozen configuration for OCD-Mix benchmark and validation",
+  "thresholds_ncal4000": {
+    "phi=0.0": {
+      "c_A": 1.5430356943187182,
+      "c_Q": 6.848730885292404
+    },
+    "phi=0.3": {
+      "c_A": 1.5451778434357897,
+      "c_Q": 6.881701591584876
+    },
+    "phi=0.6": {
+      "c_A": 1.5627697152731972,
+      "c_Q": 6.85193125937679
+    },
+    "phi=0.8": {
+      "c_A": 1.603810105007682,
+      "c_Q": 6.977587057492859
+    }
+  },
+  "c_CI": 0.40,
+  "c_rep": 0.80,
+  "ell_default": 0,
+  "ell_extra_options": [0, 20, 50],
+  "alpha_target": 0.05,
+  "dyadic_windows_K": [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024],
+  "lrv_estimator": "prewhitened_bartlett",
+  "bandwidth_Le": 5,
+  "localization_mode": "new_cws",
+  "calibration_seed_range": {
+    "start": 20270100,
+    "end": 20275000,
+    "description": "Reserved exclusively for null and parameter calibrations"
+  },
+  "evaluation_seed_range": {
+    "start": 20280100,
+    "end": 20290000,
+    "description": "Reserved exclusively for evaluation runs across test streams"
+  }
+}
+

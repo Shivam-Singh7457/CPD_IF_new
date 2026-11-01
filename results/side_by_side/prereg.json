@@ -1,0 +1,141 @@
+{
+  "registration_timestamp": "2026-10-31T06:50:00Z",
+  "frozen_config_path": "results/baselines/frozen_ocdmix_config.json",
+  "config_hash": "1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27",
+  "authoritative_ocdmix_results_set": "results/fix/ (task1_adopted_calibration.csv, taskC_eval_coverage.csv, taskC_eval_gates.json)",
+  "seed_partitioning": {
+    "calibration_seed_range": [20270100, 20275000],
+    "evaluation_seed_range": [20280100, 20290000],
+    "stream_order_seeds": {
+      "mnist": 42000,
+      "synthetic_rff": 43000,
+      "mp_scenarios": 44000
+    }
+  },
+  "verdict_rules": {
+    "definition": "For every (test, cell, metric), output WIN / TIE / LOSS for OCD-Mix against each baseline",
+    "win_criteria": "Holm-adjusted paired CI excludes 0 in our favour AND (for delay or width) both methods control FAR / coverage",
+    "loss_criteria": "Holm-adjusted paired CI excludes 0 in baseline favour AND (for delay or width) both methods control FAR / coverage",
+    "tie_criteria": "Otherwise",
+    "matched_far_rule": "Delay comparisons are made only at matched FAR (Tier 2) or at matched ARL",
+    "tier1_rule": "Tier 1 results reported separately as 'out-of-the-box robustness'",
+    "far_control_rule": "A method controls FAR if its null FAR 95% CI contains 0.05 (Tier 2)"
+  },
+  "tests": {
+    "CWS-1": {
+      "description": "iid N(0,I_p), p in {100, 500}, s in {2, round(sqrt(p)), p}, theta in {2, 1, 0.5}, beta in {2*theta, theta, theta/2}",
+      "p_list": [100, 500],
+      "gamma": 30000,
+      "z": 1000,
+      "alpha": 0.05,
+      "reps": 2000,
+      "window_grid_K": [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024],
+      "methods": ["M4", "M1", "M3"],
+      "m4_c": 0.5,
+      "metrics": ["delay", "coverage", "ci_length"]
+    },
+    "CWS-2": {
+      "description": "p = 100, s in {5, 50}, theta in {1, 2}, shapes uniform / j^-1/2 / j^-1",
+      "p": 100,
+      "s_list": [5, 50],
+      "theta_list": [1.0, 2.0],
+      "shapes": ["uniform", "decay_half", "decay_one"],
+      "reps": 500,
+      "ell_formula": "2 * s * beta^-2 * log2(2*p)^2 * log(p)",
+      "methods": ["M4", "M1"],
+      "metrics": ["P(S_hat subseteq S_beta)", "P(S_hat union {j_hat} supseteq S)"]
+    },
+    "CWS-3": {
+      "description": "ROC curves (P(S_hat U {j_hat} supseteq S) vs P(S_hat subseteq S_beta)) varying d1 at ell=0, coverage vs c for M4 and M1 (c grid 0.1-1.0)",
+      "c_grid": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+      "methods": ["M4", "M1"]
+    },
+    "CWS-4": {
+      "description": "Offline CI of Kaul et al. after an alarm on CWS-1 grid",
+      "q_quantile": 11.03,
+      "soft_threshold": "BIC",
+      "methods": ["Kaul", "M4", "M1"]
+    },
+    "CWS-5": {
+      "description": "D1 CDC weekly deaths as in CWS Sec 4.4 (seasonal curve bandwidth 20 days, sqrt transform, train end 29 June 2019)",
+      "a": "sqrt(2*log(p))",
+      "a_tilde": "sqrt(2*log(p))",
+      "d1": "0.5*sqrt(log(p/alpha))",
+      "alpha": 0.05,
+      "beta": 50,
+      "gamma": 1000,
+      "modes": ["causal", "literal"],
+      "methods": ["M4", "M5", "M1", "M3", "M6"]
+    },
+    "MP-1": {
+      "description": "Scenarios S1-S3, T in {150, 300}, p in {3, 5}, 200 reps",
+      "T_list": [150, 300],
+      "p_list": [3, 5],
+      "reps": 200,
+      "scenarios": ["S1", "S2", "S3"],
+      "methods": ["M8", "M1"],
+      "m0_infeasible_threshold": 30,
+      "metrics": ["misestimation_rate_K", "scaled_hausdorff"]
+    },
+    "MP-2": {
+      "description": "Single change at T/2 with X_t = 0.3 X_{t-1} + eps_t, mu=1_p, p in {2, 3}, T in {100, 200, 300}, alpha in {0.01, 0.05}",
+      "reps": 500,
+      "methods": ["M8", "M1"],
+      "m0_min_feasible": 100,
+      "metrics": ["coverage", "mean_width", "median_estimation_error"]
+    },
+    "MP-3": {
+      "description": "Kernel and bandwidth robustness for M8, runtime for M8 and M1 at T in {150, 300}, p=3",
+      "kernels": ["Gaussian", "Epanechnikov", "Triweight"],
+      "c_h_grid": [1, 2, 5, 10, 20],
+      "methods": ["M8", "M1"]
+    },
+    "MP-4": {
+      "description": "D2 FRED daily closes SP500, DJIA, NASDAQCOM. Single-change online methods use m0=50 with restart (blackout of ell)",
+      "m0": 50,
+      "methods": ["M8", "M1", "M5", "M6"],
+      "m8_reproduction_gate_dates": ["2021-04-07", "2021-06-30", "2021-10-19", "2022-01-18", "2022-04-25", "2022-10-27"]
+    },
+    "RFF-1": {
+      "description": "Runtime per insert and total for n up to 250000 (d=1) and for d in {20, 50}, r in {10, 50, 100, 500, 1000} vs M1 and M3",
+      "r_list": [10, 50, 100, 500, 1000],
+      "methods": ["M6", "M1", "M3"],
+      "metrics": ["throughput_us_per_update", "memory_kib"]
+    },
+    "RFF-2": {
+      "description": "P=N(0_20, I_20), Q in {mixed_normal, laplace, uniform}, 64 pre-change samples, 100 reps, ARL in {1e2, 1e3, 1e4}",
+      "ARL_list": [100, 1000, 10000],
+      "reps": 100,
+      "reference_samples": 1000,
+      "methods": ["M6", "M7_NEWMA", "M7_ScanB", "M7_OKCUSUM", "M1", "M3"]
+    },
+    "RFF-3": {
+      "description": "D4 MNIST digit 0 -> digits 1-9 (d=784, drop zero-variance pixels with eps=1e-6), same protocol as RFF-2",
+      "eps_variance": 1e-6,
+      "methods": ["M6", "M7_NEWMA", "M7_ScanB", "M7_OKCUSUM", "M1", "M3"]
+    },
+    "RFF-4": {
+      "description": "D3 HASC walking -> staying (skip 1596 walking samples, 100 walk + 100 stay, 10 datasets, alpha=0.1)",
+      "pre_change_ref": 1596,
+      "test_segment_pre": 100,
+      "test_segment_post": 100,
+      "alpha": 0.1,
+      "methods": ["M6", "M7_NEWMA", "M7_ScanB", "M7_OKCUSUM", "M1", "M3"],
+      "metrics": ["average_delay", "too_early", "miss"]
+    },
+    "OWN-1": {
+      "description": "VAR(1), phi in {0, 0.3, 0.6, 0.8}, p=50, T=5000, m0=1000, b=2500, s in {2, 5, 50}, effects {1.0, 1.5}, >=1000 streams/cell, plus non-diagonal VAR(1) stress",
+      "phi_list": [0.0, 0.3, 0.6, 0.8],
+      "s_list": [2, 5, 50],
+      "effects": [1.0, 1.5],
+      "methods": ["M1", "M2", "M3", "M4", "M5", "M6"],
+      "tiers": ["Tier1_default", "Tier2_matched_far"]
+    }
+  },
+  "reproduction_gates": {
+    "RG1": "CWS-1 rows: (100,2,2,4 -> 9.8/96.2/20.1), (100,100,1,1 -> 100.5/96.3/296.0), (500,22,1,1 -> 91.9/97.8/229.7) within 3 SE",
+    "RG2": "MP-2: p=2, T=300, alpha=0.05 -> cover 0.961, width 20.9; p=3, T=200 -> 0.949, 13.9 within 3 SE",
+    "RG3": "RFF-4 RFF-MMD row within 25% of 21.86 on delay and +-1 on too-early/miss"
+  }
+}
+

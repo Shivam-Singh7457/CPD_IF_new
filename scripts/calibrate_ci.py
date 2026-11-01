@@ -47,7 +47,6 @@ def main() -> None:
         b = gt[i]["changepoint_index_zero_based"]
         if b is None:
             continue
-
         X = np.asarray(obs[i], dtype=np.float64)
         fit = fit_training(
             X[:m0],
