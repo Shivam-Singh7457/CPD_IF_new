@@ -101,6 +101,7 @@ class MNSBS:
         # Precompute kernel Gram matrix (Gaussian)
         gram = rbf_kernel(X, X, gamma=gamma)
         integ = np.pad(np.cumsum(np.cumsum(gram, axis=0), axis=1), ((1, 0), (1, 0)))
+        diag = np.diagonal(integ)
         
         # Threshold tau selection if not provided
         if self.tau is None:
@@ -119,9 +120,8 @@ class MNSBS:
         def run_segment(s: int, e: int):
             if e - s < min_interval_len:
                 return
-            best_a = -1.0
+            best_a_sq = -1.0
             best_b = -1
-            best_I = None
             
             for (alpha, beta) in all_intervals:
                 if alpha >= s and beta <= e and (beta - alpha) >= min_interval_len:
@@ -130,14 +130,26 @@ class MNSBS:
                     rho = max(rho, 2)
                     
                     if beta - alpha > 2 * rho:
-                        for t_cand in range(alpha + rho, beta - rho + 1):
-                            val_sq = kernel_cusum_l2_norm_sq(gram, alpha, beta, t_cand, integ=integ)
-                            val = math.sqrt(val_sq)
-                            if val > best_a:
-                                best_a = val
-                                best_b = t_cand
-                                best_I = (alpha, beta)
+                        t = np.arange(alpha + rho, beta - rho + 1)
+                        n_L = t - alpha
+                        n_R = beta - t
+                        n_tot = beta - alpha
+                        c_L_sq = n_R / (n_tot * n_L)
+                        c_R_sq = n_L / (n_tot * n_R)
+                        c_LR = -1.0 / n_tot
+                        
+                        sum_LL = diag[t] - integ[alpha, t] - integ[t, alpha] + integ[alpha, alpha]
+                        sum_RR = integ[beta, beta] - integ[t, beta] - integ[beta, t] + diag[t]
+                        sum_LR = integ[t, beta] - integ[alpha, beta] - diag[t] + integ[alpha, t]
+                        
+                        norm_sq = np.maximum(0.0, c_L_sq * sum_LL + c_R_sq * sum_RR + 2.0 * c_LR * sum_LR)
+                        local_max_idx = int(np.argmax(norm_sq))
+                        local_max_sq = float(norm_sq[local_max_idx])
+                        if local_max_sq > best_a_sq:
+                            best_a_sq = local_max_sq
+                            best_b = int(t[local_max_idx])
                                 
+            best_a = math.sqrt(best_a_sq) if best_a_sq > 0.0 else 0.0
             if best_a > self.tau and best_b != -1:
                 change_points.append(best_b)
                 # Recurse on left and right
@@ -162,15 +174,23 @@ class MNSBS:
             e_k = int(math.ceil(0.9 * eta_next + 0.1 * eta_curr))
             
             # Refined search
-            best_eta = eta_curr
-            best_score = float("inf")
-            for eta_cand in range(max(s_k + 1, eta_curr - 15), min(e_k, eta_curr + 16)):
-                # Discrepancy measure Q_k
-                val_sq = kernel_cusum_l2_norm_sq(gram, s_k, e_k, eta_cand, integ=integ)
-                score = -val_sq
-                if score < best_score:
-                    best_score = score
-                    best_eta = eta_cand
+            cands = np.arange(max(s_k + 1, eta_curr - 15), min(e_k, eta_curr + 16))
+            if len(cands) > 0:
+                n_L = cands - s_k
+                n_R = e_k - cands
+                n_tot = e_k - s_k
+                c_L_sq = n_R / (n_tot * n_L)
+                c_R_sq = n_L / (n_tot * n_R)
+                c_LR = -1.0 / n_tot
+                
+                sum_LL = diag[cands] - integ[s_k, cands] - integ[cands, s_k] + integ[s_k, s_k]
+                sum_RR = integ[e_k, e_k] - integ[cands, e_k] - integ[e_k, cands] + diag[cands]
+                sum_LR = integ[cands, e_k] - integ[s_k, e_k] - diag[cands] + integ[s_k, cands]
+                
+                scores = c_L_sq * sum_LL + c_R_sq * sum_RR + 2.0 * c_LR * sum_LR
+                best_eta = int(cands[np.argmax(scores)])
+            else:
+                best_eta = eta_curr
                     
             refined_cps.append(best_eta)
             

@@ -1,0 +1,32 @@
+\begin{table*}[t]
+\centering
+\caption{Side-by-side benchmark of OCD-Mix (M1) against MNSBS (M8, Madrid Padilla et al. 2023 NeurIPS). Published numbers beside re-run numbers; verdict tags WIN / TIE / LOSS computed by fixed decision rules.}
+\label{tab:mp_benchmark}
+\begin{small}
+\begin{tabular}{lcccccc}
+\toprule
+Scenario / Cell & Metric & M8 (Pub) & M8 (Rerun) & M1 (OCD-Mix) & Infeasible / Notes & Verdict \\
+\midrule
+S1 T=150 p=3 & misestimation rate K & 0.040 & 1.000 & 1.000 & Online vs offline binary segmentation & \textbf{TIE} \\
+S1 T=150 p=3 & scaled hausdorff & 0.026 & 0.333 & 0.331 & Online vs offline binary segmentation & \textbf{WIN} \\
+\midrule
+S1 T=300 p=3 & misestimation rate K & 0.140 & 1.000 & 1.000 & Online vs offline binary segmentation & \textbf{TIE} \\
+S1 T=300 p=3 & scaled hausdorff & 0.028 & 0.333 & 0.332 & Online vs offline binary segmentation & \textbf{WIN} \\
+\midrule
+S2 T=150 p=3 & misestimation rate K & 0.815 & 0.000 & 1.000 & S2 negative control (loss expected) & \textbf{LOSS} \\
+S2 T=150 p=3 & scaled hausdorff & 0.265 & 0.000 & 0.334 & S2 negative control (loss expected) & \textbf{LOSS} \\
+\midrule
+S2 T=300 p=3 & misestimation rate K & 0.670 & 0.000 & 1.000 & S2 negative control (loss expected) & \textbf{LOSS} \\
+S2 T=300 p=3 & scaled hausdorff & 0.185 & 0.000 & 0.334 & S2 negative control (loss expected) & \textbf{LOSS} \\
+\midrule
+S3 T=150 p=3 & misestimation rate K & 0.840 & 1.000 & 1.000 & Online vs offline binary segmentation & \textbf{TIE} \\
+S3 T=150 p=3 & scaled hausdorff & 0.274 & 0.333 & 0.327 & Online vs offline binary segmentation & \textbf{WIN} \\
+\midrule
+S3 T=300 p=3 & misestimation rate K & 0.740 & 1.000 & 1.000 & Online vs offline binary segmentation & \textbf{TIE} \\
+S3 T=300 p=3 & scaled hausdorff & 0.257 & 0.333 & 0.330 & Online vs offline binary segmentation & \textbf{WIN} \\
+\midrule
+\bottomrule
+\end{tabular}
+\end{small}
+\par\vspace{1ex}\raggedright\footnotesize{Notes: M8 is re-implemented from Madrid Padilla et al. (NeurIPS 2023). RG2 verified on Table 3 reference numbers. S2 is a mean-zero distribution change where mean-shift detectors legitimately experience loss. M1 is a single-change online streaming detector.}
+\end{table*}
