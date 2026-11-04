@@ -34,14 +34,10 @@ def kernel_cusum_l2_norm_sq(
     gram: np.ndarray,
     alpha: int,
     beta: int,
-    t: int
+    t: int,
+    integ: Optional[np.ndarray] = None
 ) -> float:
-    """Computes || \widetilde{F}^{(\alpha, \beta]}_{t, h} ||_{L_2}^2 using precomputed kernel Gram matrix.
-    
-    CUSUM weight:
-      left weight: c_L = sqrt((beta - t) / ((beta - alpha) * (t - alpha)))
-      right weight: c_R = -sqrt((t - alpha) / ((beta - alpha) * (beta - t)))
-    """
+    """Computes || \widetilde{F}^{(\alpha, \beta]}_{t, h} ||_{L_2}^2 using precomputed kernel Gram matrix or 2D prefix sums."""
     n_L = t - alpha
     n_R = beta - t
     n_tot = beta - alpha
@@ -51,13 +47,14 @@ def kernel_cusum_l2_norm_sq(
     c_L = math.sqrt(n_R / (n_tot * n_L))
     c_R = -math.sqrt(n_L / (n_tot * n_R))
     
-    # Gram submatrices
-    # G_LL: alpha:t, alpha:t
-    # G_RR: t:beta, t:beta
-    # G_LR: alpha:t, t:beta
-    sum_LL = np.sum(gram[alpha:t, alpha:t])
-    sum_RR = np.sum(gram[t:beta, t:beta])
-    sum_LR = np.sum(gram[alpha:t, t:beta])
+    if integ is not None:
+        sum_LL = integ[t, t] - integ[alpha, t] - integ[t, alpha] + integ[alpha, alpha]
+        sum_RR = integ[beta, beta] - integ[t, beta] - integ[beta, t] + integ[t, t]
+        sum_LR = integ[t, beta] - integ[alpha, beta] - integ[t, t] + integ[alpha, t]
+    else:
+        sum_LL = np.sum(gram[alpha:t, alpha:t])
+        sum_RR = np.sum(gram[t:beta, t:beta])
+        sum_LR = np.sum(gram[alpha:t, t:beta])
     
     norm_sq = (c_L ** 2) * sum_LL + (c_R ** 2) * sum_RR + 2.0 * c_L * c_R * sum_LR
     return float(max(0.0, norm_sq))
@@ -103,6 +100,7 @@ class MNSBS:
         
         # Precompute kernel Gram matrix (Gaussian)
         gram = rbf_kernel(X, X, gamma=gamma)
+        integ = np.pad(np.cumsum(np.cumsum(gram, axis=0), axis=1), ((1, 0), (1, 0)))
         
         # Threshold tau selection if not provided
         if self.tau is None:
@@ -133,7 +131,7 @@ class MNSBS:
                     
                     if beta - alpha > 2 * rho:
                         for t_cand in range(alpha + rho, beta - rho + 1):
-                            val_sq = kernel_cusum_l2_norm_sq(gram, alpha, beta, t_cand)
+                            val_sq = kernel_cusum_l2_norm_sq(gram, alpha, beta, t_cand, integ=integ)
                             val = math.sqrt(val_sq)
                             if val > best_a:
                                 best_a = val
@@ -168,7 +166,7 @@ class MNSBS:
             best_score = float("inf")
             for eta_cand in range(max(s_k + 1, eta_curr - 15), min(e_k, eta_curr + 16)):
                 # Discrepancy measure Q_k
-                val_sq = kernel_cusum_l2_norm_sq(gram, s_k, e_k, eta_cand)
+                val_sq = kernel_cusum_l2_norm_sq(gram, s_k, e_k, eta_cand, integ=integ)
                 score = -val_sq
                 if score < best_score:
                     best_score = score
@@ -177,7 +175,7 @@ class MNSBS:
             refined_cps.append(best_eta)
             
             # Jump size kappa_hat_k (Equation 4)
-            val_sq_curr = kernel_cusum_l2_norm_sq(gram, eta_prev, eta_next, best_eta)
+            val_sq_curr = kernel_cusum_l2_norm_sq(gram, eta_prev, eta_next, best_eta, integ=integ)
             kappa_hat = max(math.sqrt(val_sq_curr), 0.1)
             
             # Limiting quantile q_u(alpha) from MP paper Table 3/4

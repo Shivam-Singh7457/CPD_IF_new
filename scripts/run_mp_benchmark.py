@@ -19,9 +19,14 @@ import json
 import math
 import os
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
+
+sys.stdout.reconfigure(line_buffering=True)
+os.environ["MPLCONFIGDIR"] = tempfile.gettempdir()
+
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -123,6 +128,22 @@ def scaled_hausdorff(est_set: List[int], true_set: List[int], T: int) -> float:
     d1 = max(min(abs(x - y) for y in S_true) for x in S_est)
     d2 = max(min(abs(y - x) for x in S_est) for y in S_true)
     return float(max(d1, d2) / T)
+
+def compute_verdict(ocd_mean, ocd_lo, ocd_hi, base_mean, base_lo, base_hi, metric: str) -> str:
+    """Fixed decision rule for WIN / TIE / LOSS."""
+    if metric in ["coverage"]:
+        if ocd_lo > base_hi:
+            return "WIN"
+        elif base_lo > ocd_hi:
+            return "LOSS"
+        return "TIE"
+    elif metric in ["misestimation_rate_K", "scaled_hausdorff", "mean_width", "median_error", "delay"]:
+        if ocd_hi < base_lo:
+            return "WIN"
+        elif base_hi < ocd_lo:
+            return "LOSS"
+        return "TIE"
+    return "TIE"
 
 # ==============================================================================
 # MP-1: Scenarios S1-S3

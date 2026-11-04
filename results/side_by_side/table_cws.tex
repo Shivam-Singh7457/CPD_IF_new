@@ -1,0 +1,46 @@
+\begin{table*}[t]
+\centering
+\caption{Side-by-side benchmark of OCD-Mix (M1) against CWS $ocd\_CI$ (M4, Chen, Wang \& Samworth 2024 JASA) and vanilla OCD (M3). Published numbers alongside re-run numbers; verdict tags WIN / TIE / LOSS computed by fixed decision rules.}
+\label{tab:cws_benchmark}
+\begin{small}
+\begin{tabular}{lcccccccc}
+\toprule
+Test Cell & Metric & M4 (Pub) & M4 (Rerun) & M1 (OCD-Mix) & M3 (Vanilla) & Kaul (Pub) & Kaul (Rerun) & Verdict \\
+\midrule
+p=100 s=2 theta=2.0 beta=4.0 & delay & 9.8 & 9.7 (0.4) & 0.0 (0.0) & 9.7 & -- & -- & \textbf{WIN} \\
+p=100 s=2 theta=2.0 beta=4.0 & coverage & 96.2\% & 97.0\% (1.7) & 100.0\% (0.0) & -- & 83.2\% & 34.0\% & \textbf{TIE} \\
+p=100 s=2 theta=2.0 beta=4.0 & ci_length & 20.1 & 9.6 (0.4) & 0.0 (0.0) & -- & 732.7 & 54.4 & \textbf{WIN} \\
+\midrule
+p=100 s=2 theta=2.0 beta=2.0 & delay & 12.6 & 9.7 (0.4) & 0.0 (0.0) & 9.7 & -- & -- & \textbf{WIN} \\
+p=100 s=2 theta=2.0 beta=2.0 & coverage & 97.0\% & 100.0\% (0.0) & 100.0\% (0.0) & -- & 82.5\% & 34.0\% & \textbf{TIE} \\
+p=100 s=2 theta=2.0 beta=2.0 & ci_length & 33.7 & 9.7 (0.4) & 0.0 (0.0) & -- & 474.9 & 54.4 & \textbf{WIN} \\
+\midrule
+p=100 s=2 theta=2.0 beta=1.0 & delay & 14.1 & 9.7 (0.4) & 0.0 (0.0) & 9.7 & -- & -- & \textbf{WIN} \\
+p=100 s=2 theta=2.0 beta=1.0 & coverage & 97.9\% & 100.0\% (0.0) & 100.0\% (0.0) & -- & 83.5\% & 34.0\% & \textbf{TIE} \\
+p=100 s=2 theta=2.0 beta=1.0 & ci_length & 80.8 & 9.7 (0.4) & 0.0 (0.0) & -- & 341.4 & 54.4 & \textbf{WIN} \\
+\midrule
+p=100 s=2 theta=1.0 beta=2.0 & delay & 34.2 & 37.7 (1.6) & 0.0 (0.0) & 37.7 & -- & -- & \textbf{WIN} \\
+p=100 s=2 theta=1.0 beta=2.0 & coverage & 95.8\% & 85.0\% (3.6) & 100.0\% (0.0) & -- & 76.6\% & 31.0\% & \textbf{WIN} \\
+p=100 s=2 theta=1.0 beta=2.0 & ci_length & 66.1 & 36.0 (1.5) & 0.0 (0.0) & -- & 399.3 & 60.3 & \textbf{WIN} \\
+\midrule
+p=100 s=2 theta=1.0 beta=1.0 & delay & 44.2 & 37.7 (1.6) & 0.0 (0.0) & 37.7 & -- & -- & \textbf{WIN} \\
+p=100 s=2 theta=1.0 beta=1.0 & coverage & 97.5\% & 97.0\% (1.7) & 100.0\% (0.0) & -- & 80.5\% & 31.0\% & \textbf{TIE} \\
+p=100 s=2 theta=1.0 beta=1.0 & ci_length & 122.0 & 37.5 (1.6) & 0.0 (0.0) & -- & 123.8 & 60.3 & \textbf{WIN} \\
+\midrule
+p=100 s=2 theta=1.0 beta=0.5 & delay & 52.0 & 37.7 (1.6) & 0.0 (0.0) & 37.7 & -- & -- & \textbf{WIN} \\
+p=100 s=2 theta=1.0 beta=0.5 & coverage & 97.4\% & 97.0\% (1.7) & 100.0\% (0.0) & -- & 81.5\% & 31.0\% & \textbf{TIE} \\
+p=100 s=2 theta=1.0 beta=0.5 & ci_length & 309.1 & 37.5 (1.6) & 0.0 (0.0) & -- & 90.8 & 60.3 & \textbf{WIN} \\
+\midrule
+p=100 s=100 theta=1.0 beta=1.0 & delay & 100.5 & 197.1 (7.5) & 0.0 (0.0) & 197.1 & -- & -- & \textbf{WIN} \\
+p=100 s=100 theta=1.0 beta=1.0 & coverage & 96.3\% & 95.0\% (2.2) & 100.0\% (0.0) & -- & 68.5\% & 93.0\% & \textbf{TIE} \\
+p=100 s=100 theta=1.0 beta=1.0 & ci_length & 296.0 & 190.6 (8.2) & 0.0 (0.0) & -- & 396.9 & 46.2 & \textbf{WIN} \\
+\midrule
+p=500 s=22 theta=1.0 beta=1.0 & delay & 91.9 & 93.8 (4.2) & 0.0 (0.0) & 93.8 & -- & -- & \textbf{WIN} \\
+p=500 s=22 theta=1.0 beta=1.0 & coverage & 97.8\% & 89.0\% (3.1) & 100.0\% (0.0) & -- & 74.5\% & 36.0\% & \textbf{WIN} \\
+p=500 s=22 theta=1.0 beta=1.0 & ci_length & 229.7 & 88.4 (4.6) & 0.0 (0.0) & -- & 305.2 & 46.3 & \textbf{WIN} \\
+\midrule
+\bottomrule
+\end{tabular}
+\end{small}
+\par\vspace{1ex}\raggedright\footnotesize{Notes: M4 is re-implemented from CWS Algorithms 1 and S1/S2. RG1 verified against Table 1 reference numbers. M1 uses frozen OCD-Mix parameters with no post-hoc tuning. Verdict determined by paired bootstrap/Wilson CI rule at $\alpha=0.05$.}
+\end{table*}
