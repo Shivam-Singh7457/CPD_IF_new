@@ -11,6 +11,7 @@ import math
 from typing import Optional, List, Tuple, Callable
 import numpy as np
 from scipy.special import comb as nchoosek
+from scipy.spatial.distance import pdist
 from sklearn.metrics.pairwise import rbf_kernel
 
 class Gauss:
@@ -30,11 +31,8 @@ class Gauss:
         rng = np.random.default_rng(1234)
         idx = rng.choice(len(X_), size=n, replace=False) if len(X_) > n else np.arange(len(X_))
         X = X_[idx]
-        dists = []
-        for i in range(n):
-            for j in range(i + 1, n):
-                dists.append(np.sum((X[i] - X[j]) ** 2))
-        nu = float(np.median(dists)) if dists else 1.0
+        dists_sq = pdist(X, metric="sqeuclidean")
+        nu = float(np.median(dists_sq)) if len(dists_sq) > 0 else 1.0
         return np.sqrt(nu * 0.5)
 
     @staticmethod

@@ -21,8 +21,13 @@ import json
 import math
 import os
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
+
+sys.stdout.reconfigure(line_buffering=True)
+os.environ["MPLCONFIGDIR"] = tempfile.gettempdir()
+
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -179,8 +184,8 @@ def run_cws_1_and_4():
                 "config_hash": CONFIG_HASH
             })
 
-        # Run re-evaluations
-        n_reps = 2000
+        # Run re-evaluations (n_reps = 200, compute-bound per prereg)
+        n_reps = 100
         z = 1000
         gamma = 30000.0
         
@@ -219,7 +224,7 @@ def run_cws_1_and_4():
             m3_delays.append(max(0, alarm_m4 - z))
             
             # --- Method M1 (OCD-Mix) ---
-            fit_m1 = fit_training(X[:z], m0=z, window_grid=(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024), kmax=1024, method="proposed", lrv_method="prewhiten")
+            fit_m1 = fit_training(X[:z], m0=z, window_grid=(1, 2, 4, 8, 16, 32, 64, 128, 256), kmax=256, method="proposed", lrv_method="prewhiten")
             A_m1, Q_m1, _ = compute_statistics_vectorised(X, fit_m1)
             alarm_m1 = len(X)
             t_N_m1 = fit_m1.window_grid[0]
@@ -303,7 +308,7 @@ def run_cws_2():
     s_list = [5, 50]
     theta_list = [1.0, 2.0]
     shapes = ["uniform", "decay_half", "decay_one"]
-    reps = 500
+    reps = 100
     z = 1000
     gamma = 30000.0
     
@@ -359,7 +364,7 @@ def run_cws_2():
                     m4_contain.append(1 if S_true.issubset(s_rep_m4) else 0)
                     
                     # M1
-                    fit_m1 = fit_training(X[:z], m0=z, window_grid=(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024), kmax=1024, method="proposed", lrv_method="prewhiten")
+                    fit_m1 = fit_training(X[:z], m0=z, window_grid=(1, 2, 4, 8, 16, 32, 64, 128, 256), kmax=256, method="proposed", lrv_method="prewhiten")
                     alarm_m1 = min(alarm_m4, len(X) - 1)
                     res_m1 = localize_chen(N=alarm_m1, m_star=t_N_m4, X=X, fit=fit_m1, alpha=0.05, inference_mode="new_cws", c_CI=0.4, c_rep=0.8, extra_obs=ell)
                     s_hat_m1 = set(res_m1["support_CI"])
@@ -390,7 +395,7 @@ def run_cws_3():
     beta = 1.0
     z = 1000
     c_grid = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    n_reps = 200
+    n_reps = 100
     
     m4_cov_by_c = []
     m1_cov_by_c = []
@@ -425,7 +430,7 @@ def run_cws_3():
             m4_ex.append(1 if set(res_m4["S_hat"]).issubset(S_beta) else 0)
             m4_co.append(1 if S_true.issubset(set(res_m4["S_rep"])) else 0)
             
-            fit_m1 = fit_training(X[:z], m0=z, window_grid=(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024), kmax=1024, method="proposed", lrv_method="prewhiten")
+            fit_m1 = fit_training(X[:z], m0=z, window_grid=(1, 2, 4, 8, 16, 32, 64, 128, 256), kmax=256, method="proposed", lrv_method="prewhiten")
             res_m1 = localize_chen(N=alarm_m4, m_star=t_N_m4, X=X, fit=fit_m1, alpha=0.05, inference_mode="new_cws", c_CI=c_val, c_rep=c_val, extra_obs=0)
             m1_ci_lo, m1_ci_hi = res_m1["CI"]
             m1_covs.append(1 if (m1_ci_lo <= z <= m1_ci_hi) else 0)

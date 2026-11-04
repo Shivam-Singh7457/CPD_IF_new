@@ -1,0 +1,164 @@
+test_id,method,source,tier,cell,metric,value,se,lo,hi,n_reps,config_hash
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=2.0_beta=4.0,delay,9.8,0.1,9.604000000000001,9.996,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=2.0_beta=4.0,coverage,0.9620000000000001,0.004,0.9541600000000001,0.96984,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=2.0_beta=4.0,ci_length,20.1,0.7,18.728,21.472,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=2.0_beta=4.0,coverage,0.8320000000000001,0.008,0.81632,0.84768,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=2.0_beta=4.0,ci_length,732.7,9.6,713.884,751.5160000000001,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=2.0_beta=4.0,delay,9.71,0.37907249912907104,9.01,10.3905,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=2.0_beta=4.0,coverage,0.97,0.017058722109231986,0.9154806357094724,0.9897454759759611,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=2.0_beta=4.0,ci_length,9.64,0.37511479724360525,8.92,10.33,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=2.0_beta=4.0,delay,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=2.0_beta=4.0,coverage,1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=2.0_beta=4.0,ci_length,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M3_vanilla_OCD,rerun,Tier1,p=100_s=2_theta=2.0_beta=4.0,delay,9.71,0.37907249912907104,9.01,10.3905,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=2.0_beta=4.0,coverage,0.34,0.04737087712930804,0.25461520797348164,0.43722271145275377,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=2.0_beta=4.0,ci_length,54.42,13.620640753850552,31.1585,83.46449999999999,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=2.0_beta=2.0,delay,12.6,0.1,12.404,12.796,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=2.0_beta=2.0,coverage,0.97,0.004,0.96216,0.9778399999999999,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=2.0_beta=2.0,ci_length,33.7,0.7,32.328,35.072,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=2.0_beta=2.0,coverage,0.825,0.008,0.80932,0.84068,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=2.0_beta=2.0,ci_length,474.9,11.0,453.34,496.46,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=2.0_beta=2.0,delay,9.71,0.37907249912907104,9.01,10.3905,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=2.0_beta=2.0,coverage,1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=2.0_beta=2.0,ci_length,9.71,0.37907249912907104,9.01,10.3905,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=2.0_beta=2.0,delay,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=2.0_beta=2.0,coverage,1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=2.0_beta=2.0,ci_length,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M3_vanilla_OCD,rerun,Tier1,p=100_s=2_theta=2.0_beta=2.0,delay,9.71,0.37907249912907104,9.01,10.3905,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=2.0_beta=2.0,coverage,0.34,0.04737087712930804,0.25461520797348164,0.43722271145275377,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=2.0_beta=2.0,ci_length,54.42,13.620640753850552,31.1585,83.46449999999999,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=2.0_beta=1.0,delay,14.1,0.1,13.904,14.296,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=2.0_beta=1.0,coverage,0.9790000000000001,0.003,0.9731200000000001,0.9848800000000001,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=2.0_beta=1.0,ci_length,80.8,1.0,78.84,82.75999999999999,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=2.0_beta=1.0,coverage,0.835,0.008,0.81932,0.85068,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=2.0_beta=1.0,ci_length,341.4,10.4,321.01599999999996,361.784,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=2.0_beta=1.0,delay,9.71,0.37907249912907104,9.01,10.3905,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=2.0_beta=1.0,coverage,1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=2.0_beta=1.0,ci_length,9.71,0.37907249912907104,9.01,10.3905,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=2.0_beta=1.0,delay,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=2.0_beta=1.0,coverage,1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=2.0_beta=1.0,ci_length,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M3_vanilla_OCD,rerun,Tier1,p=100_s=2_theta=2.0_beta=1.0,delay,9.71,0.37907249912907104,9.01,10.3905,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=2.0_beta=1.0,coverage,0.34,0.04737087712930804,0.25461520797348164,0.43722271145275377,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=2.0_beta=1.0,ci_length,54.42,13.620640753850552,31.1585,83.46449999999999,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=1.0_beta=2.0,delay,34.2,0.3,33.612,34.788000000000004,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=1.0_beta=2.0,coverage,0.958,0.004,0.95016,0.9658399999999999,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=1.0_beta=2.0,ci_length,66.1,1.0,64.14,68.05999999999999,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=1.0_beta=2.0,coverage,0.7659999999999999,0.009000000000000001,0.74836,0.7836399999999999,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=1.0_beta=2.0,ci_length,399.3,10.5,378.72,419.88,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=1.0_beta=2.0,delay,37.73,1.6064802482068639,34.55975,41.031,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=1.0_beta=2.0,coverage,0.85,0.035707142142714254,0.7671644040916763,0.9069401471634337,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=1.0_beta=2.0,ci_length,35.95,1.4789687234179378,33.12975,38.89025,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=1.0_beta=2.0,delay,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=1.0_beta=2.0,coverage,1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=1.0_beta=2.0,ci_length,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M3_vanilla_OCD,rerun,Tier1,p=100_s=2_theta=1.0_beta=2.0,delay,37.73,1.6064802482068639,34.55975,41.031,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=1.0_beta=2.0,coverage,0.31,0.04624932431938871,0.22779697212376038,0.40626055719489407,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=1.0_beta=2.0,ci_length,60.26,12.488917268740895,39.418,85.067,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=1.0_beta=1.0,delay,44.2,0.3,43.612,44.788000000000004,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=1.0_beta=1.0,coverage,0.975,0.004,0.96716,0.9828399999999999,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=1.0_beta=1.0,ci_length,122.0,1.4,119.256,124.744,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=1.0_beta=1.0,coverage,0.805,0.009000000000000001,0.7873600000000001,0.8226399999999999,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=1.0_beta=1.0,ci_length,123.8,6.5,111.06,136.54,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=1.0_beta=1.0,delay,37.73,1.6064802482068639,34.55975,41.031,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=1.0_beta=1.0,coverage,0.97,0.017058722109231986,0.9154806357094724,0.9897454759759611,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=1.0_beta=1.0,ci_length,37.54,1.6151692534133126,34.3895,40.87025,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=1.0_beta=1.0,delay,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=1.0_beta=1.0,coverage,1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=1.0_beta=1.0,ci_length,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M3_vanilla_OCD,rerun,Tier1,p=100_s=2_theta=1.0_beta=1.0,delay,37.73,1.6064802482068639,34.55975,41.031,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=1.0_beta=1.0,coverage,0.31,0.04624932431938871,0.22779697212376038,0.40626055719489407,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=1.0_beta=1.0,ci_length,60.26,12.488917268740895,39.418,85.067,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=1.0_beta=0.5,delay,52.0,0.4,51.216,52.784,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=1.0_beta=0.5,coverage,0.9740000000000001,0.004,0.9661600000000001,0.98184,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=2_theta=1.0_beta=0.5,ci_length,309.1,2.0,305.18,313.02000000000004,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=1.0_beta=0.5,coverage,0.815,0.009000000000000001,0.7973600000000001,0.8326399999999999,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=2_theta=1.0_beta=0.5,ci_length,90.8,5.4,80.216,101.384,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=1.0_beta=0.5,delay,37.73,1.6064802482068639,34.55975,41.031,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=1.0_beta=0.5,coverage,0.97,0.017058722109231986,0.9154806357094724,0.9897454759759611,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=2_theta=1.0_beta=0.5,ci_length,37.54,1.6151692534133126,34.3895,40.87025,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=1.0_beta=0.5,delay,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=1.0_beta=0.5,coverage,1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=2_theta=1.0_beta=0.5,ci_length,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M3_vanilla_OCD,rerun,Tier1,p=100_s=2_theta=1.0_beta=0.5,delay,37.73,1.6064802482068639,34.55975,41.031,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=1.0_beta=0.5,coverage,0.31,0.04624932431938871,0.22779697212376038,0.40626055719489407,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=2_theta=1.0_beta=0.5,ci_length,60.26,12.488917268740895,39.418,85.067,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=100_theta=1.0_beta=1.0,delay,100.5,0.8,98.932,102.068,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=100_theta=1.0_beta=1.0,coverage,0.963,0.004,0.95516,0.9708399999999999,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=100_s=100_theta=1.0_beta=1.0,ci_length,296.0,2.5,291.1,300.9,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=100_theta=1.0_beta=1.0,coverage,0.685,0.01,0.6654000000000001,0.7045999999999999,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=100_s=100_theta=1.0_beta=1.0,ci_length,396.9,9.6,378.084,415.71599999999995,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=100_theta=1.0_beta=1.0,delay,197.07,7.469578098507101,182.34799999999998,210.45,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=100_theta=1.0_beta=1.0,coverage,0.95,0.021794494717703377,0.8882495307680808,0.9784563208456319,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=100_s=100_theta=1.0_beta=1.0,ci_length,190.63,8.222667057308932,174.347,205.62375,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=100_theta=1.0_beta=1.0,delay,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=100_theta=1.0_beta=1.0,coverage,1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=100_s=100_theta=1.0_beta=1.0,ci_length,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M3_vanilla_OCD,rerun,Tier1,p=100_s=100_theta=1.0_beta=1.0,delay,197.07,7.469578098507101,182.34799999999998,210.45,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=100_theta=1.0_beta=1.0,coverage,0.93,0.02551470164434614,0.8625048526092651,0.9656807389327273,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=100_s=100_theta=1.0_beta=1.0,ci_length,46.18,1.6860916494974554,42.8395,49.52,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=500_s=22_theta=1.0_beta=1.0,delay,91.9,0.8,90.33200000000001,93.468,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=500_s=22_theta=1.0_beta=1.0,coverage,0.978,0.003,0.97212,0.98388,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,pub,Tier1,p=500_s=22_theta=1.0_beta=1.0,ci_length,229.7,2.4,224.99599999999998,234.404,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=500_s=22_theta=1.0_beta=1.0,coverage,0.745,0.01,0.7254,0.7646,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,pub,Tier1,p=500_s=22_theta=1.0_beta=1.0,ci_length,305.2,8.7,288.14799999999997,322.252,2000,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=500_s=22_theta=1.0_beta=1.0,delay,93.75,4.166324228352563,86.02725,102.46699999999998,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=500_s=22_theta=1.0_beta=1.0,coverage,0.89,0.031288975694324025,0.8136870349691969,0.9374580364293543,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M4_ocd_CI,rerun,Tier1,p=500_s=22_theta=1.0_beta=1.0,ci_length,88.44,4.6392989717731,80.249,97.79100000000001,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=500_s=22_theta=1.0_beta=1.0,delay,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=500_s=22_theta=1.0_beta=1.0,coverage,1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M1_OCD_Mix,rerun,Tier1,p=500_s=22_theta=1.0_beta=1.0,ci_length,0.0,0.0,0.0,0.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-1,M3_vanilla_OCD,rerun,Tier1,p=500_s=22_theta=1.0_beta=1.0,delay,93.75,4.166324228352563,86.02725,102.46699999999998,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=500_s=22_theta=1.0_beta=1.0,coverage,0.36,0.048,0.2727122040140433,0.4576459754839126,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-4,Kaul_et_al,rerun,Tier1,p=500_s=22_theta=1.0_beta=1.0,ci_length,46.28,8.119910433899223,31.337,62.922,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=1.0_shape=uniform,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=1.0_shape=uniform,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=1.0_shape=uniform,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=1.0_shape=uniform,P(S_hat union {j_hat} supseteq S),0.89,0.031288975694324025,0.8136870349691969,0.9374580364293543,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=1.0_shape=decay_half,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=1.0_shape=decay_half,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=1.0_shape=decay_half,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=1.0_shape=decay_half,P(S_hat union {j_hat} supseteq S),0.36,0.048,0.2727122040140433,0.4576459754839126,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=1.0_shape=decay_one,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=1.0_shape=decay_one,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=1.0_shape=decay_one,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=1.0_shape=decay_one,P(S_hat union {j_hat} supseteq S),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=2.0_shape=uniform,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=2.0_shape=uniform,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=2.0_shape=uniform,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=2.0_shape=uniform,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=2.0_shape=decay_half,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=2.0_shape=decay_half,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=2.0_shape=decay_half,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=2.0_shape=decay_half,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=2.0_shape=decay_one,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=5_theta=2.0_shape=decay_one,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=2.0_shape=decay_one,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=5_theta=2.0_shape=decay_one,P(S_hat union {j_hat} supseteq S),0.47,0.04990991885387112,0.3751081795934127,0.5671114302990063,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=1.0_shape=uniform,P(S_hat subseteq S_beta),0.65,0.047696960070847276,0.5525444329688796,0.7363575175690247,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=1.0_shape=uniform,P(S_hat union {j_hat} supseteq S),0.35,0.047696960070847276,0.26364248243097527,0.44745556703112027,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=1.0_shape=uniform,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=1.0_shape=uniform,P(S_hat union {j_hat} supseteq S),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=1.0_shape=decay_half,P(S_hat subseteq S_beta),0.08,0.027129319932501072,0.041093461484380624,0.14998107700948735,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=1.0_shape=decay_half,P(S_hat union {j_hat} supseteq S),0.92,0.027129319932501065,0.8500189229905127,0.9589065385156194,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=1.0_shape=decay_half,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=1.0_shape=decay_half,P(S_hat union {j_hat} supseteq S),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=1.0_shape=decay_one,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=1.0_shape=decay_one,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=1.0_shape=decay_one,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=1.0_shape=decay_one,P(S_hat union {j_hat} supseteq S),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=2.0_shape=uniform,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=2.0_shape=uniform,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=2.0_shape=uniform,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=2.0_shape=uniform,P(S_hat union {j_hat} supseteq S),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=2.0_shape=decay_half,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=2.0_shape=decay_half,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=2.0_shape=decay_half,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=2.0_shape=decay_half,P(S_hat union {j_hat} supseteq S),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=2.0_shape=decay_one,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M4_ocd_CI,rerun,Tier1,s=50_theta=2.0_shape=decay_one,P(S_hat union {j_hat} supseteq S),1.0,0.0,0.9630065017930143,1.0,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=2.0_shape=decay_one,P(S_hat subseteq S_beta),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-2,M1_OCD_Mix,rerun,Tier1,s=50_theta=2.0_shape=decay_one,P(S_hat union {j_hat} supseteq S),0.0,0.0,3.469446951953614e-18,0.03699349820698568,100,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-5,M4_ocd_CI,pub,Tier1,CDC_excess_deaths_causal,alarm_date,20200328,0.0,20200321,20200328,1,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-5,M4_ocd_CI,rerun,Tier1,CDC_excess_deaths_causal,alarm_date,20191019,0.0,20190706,20191019,1,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
+CWS-5,M1_OCD_Mix,rerun,Tier1,CDC_excess_deaths_causal,alarm_date,20190706,0.0,20190706,20190706,1,1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27
