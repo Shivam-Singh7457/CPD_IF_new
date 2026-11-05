@@ -120,3 +120,4 @@ All benchmark data, publication-ready tables, and figures have been generated an
 | | [`results/side_by_side/fig_own_far_vs_phi.png`](file:///d:/OCD_CI_extended/results/side_by_side/fig_own_far_vs_phi.png) | Null FAR control vs autocorrelation $\phi$ |
 | | [`results/side_by_side/fig_own_delay_vs_phi.png`](file:///d:/OCD_CI_extended/results/side_by_side/fig_own_delay_vs_phi.png) | Detection delay at matched FAR |
 | | [`results/side_by_side/fig_own_coverage_vs_phi.png`](file:///d:/OCD_CI_extended/results/side_by_side/fig_own_coverage_vs_phi.png) | Held-out CI coverage vs autocorrelation $\phi$ |
+
