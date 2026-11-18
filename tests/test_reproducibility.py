@@ -1,8 +1,4 @@
-"""Tests for reproducibility (T9).
-
-T9 Acceptance Criterion:
-  Running run_eval.py twice gives byte-identical CSVs.
-"""
+"""Tests for numerical and pipeline reproducibility across runs."""
 from __future__ import annotations
 
 import json
@@ -59,8 +55,8 @@ def _setup_dataset(tmp_path: Path) -> Path:
     return data_dir
 
 
-def test_reproducibility_t9(tmp_path: Path):
-    """T9: Running run_eval.py twice gives byte-identical CSVs."""
+def test_reproducibility(tmp_path: Path):
+    """Verify that running evaluation twice gives byte-identical CSVs."""
     data_dir = _setup_dataset(tmp_path)
 
     # Create dummy calibration JSON

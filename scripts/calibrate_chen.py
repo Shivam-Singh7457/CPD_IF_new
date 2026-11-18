@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Calibrate c for Chen-Wang-Samworth (Eq. 16-17) on separate calibration change streams.
+"""Calibrate threshold constant c for support recovery in Chen-Wang-Samworth (Eq. 16-17).
 
-F2: Support S = { j : |E_j| - b_min*sqrt(m*+l) >= d1 }, d1 = c*sqrt(log(p/alpha)),
-    c calibrated on separate simulated change streams (start at c = 0.5, grid 0.3..1.0).
-    Compare with the current Bonferroni rule in terms of precision, recall, Jaccard.
+Support set: S = { j : |E_j| - b_min*sqrt(m*+l) >= d1 }, d1 = c*sqrt(log(p/alpha)).
+Sweeps c over a grid (0.3 to 1.0) on held-out calibration change streams and reports
+precision, recall, and Jaccard against the current Bonferroni baseline.
 """
 from __future__ import annotations
 

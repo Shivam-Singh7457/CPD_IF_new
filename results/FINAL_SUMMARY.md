@@ -129,10 +129,10 @@ As required by Gate G4, we evaluated support recall as a function of post-alarm 
 
 ---
 
-## 4. Task D: Robustness Check on Non-Diagonal VAR(1)
+## 4. Robustness Check on Non-Diagonal VAR(1)
 
 *Evaluation setup: 200 null streams per $\phi$, random stable VAR(1) with dense cross-series coupling $\|A\|_2 \approx \phi$.*
-*Source: `results/fix/taskD_dense_var_robustness.csv`.*
+*Source: `results/tables/dense_var_robustness.csv`.*
 
 | Dependence $\phi$ | Matrix Structure | False Alarms ($n=200$) | Empirical Null FAR | Controlled ($\le 12\%$) |
 | :---: | :---: | :---: | :---: | :---: |
@@ -142,13 +142,13 @@ As required by Gate G4, we evaluated support recall as a function of post-alarm 
 | **0.8** | Dense (Non-diagonal) | 61 / 200 | 0.305 ± 0.033 | **FLAGGED** |
 
 **Conclusion and Documentation Impact:**
-Under moderate off-diagonal coupling ($\phi = 0.3$), the coordinate-wise AR(1) finite-window correction remains adequate (FAR 7.0%). Under strong cross-series coupling ($\phi \ge 0.6$), off-diagonal mass causes spatial-temporal correlation spillovers that inflate the unthresholded dense statistic $Q$, elevating null FAR. Per Task D instructions:
+Under moderate off-diagonal coupling ($\phi = 0.3$), the coordinate-wise AR(1) finite-window correction remains adequate (FAR 7.0%). Under strong cross-series coupling ($\phi \ge 0.6$), off-diagonal mass causes spatial-temporal correlation spillovers that inflate the unthresholded dense statistic $Q$, elevating null FAR. Notes:
 - `src/ocdmix/` was NOT modified.
 - Documentation status tags in `final_equations.tex` specify **`[V] Validated for diagonal A`**.
 
 ---
 
-## 5. Artifact and Figure Verification (Task E)
+## 5. Artifact and Figure Verification
 
 The report generation script `scripts/make_report.py` was updated and executed to regenerate figures:
 1. `fig1_false_alarm_vs_phi.png`: Preserved as passed.

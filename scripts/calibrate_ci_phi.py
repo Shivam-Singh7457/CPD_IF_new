@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calibrate CI scalar 'a' separately at each phi and fit a(r_hat) (Task 5).
+"""Calibrate CI scalar 'a' separately at each phi and fit a(r_hat).
 
 Requirements:
 1. Calibrate CI scalar 'a' separately at each phi on a dedicated set.
@@ -160,7 +160,7 @@ def calibrate_single_a(records: list[dict], target_coverage: float = 0.95, m0: i
 
 
 def main() -> None:
-    print("--- Task 5: Calibrate CI scalar 'a' per phi and fit a(r_hat) ---")
+    print("--- Calibrate CI scalar 'a' per phi and fit a(r_hat) ---")
     cicalib_paths = ensure_cicalib_datasets()
 
     tags = ["00", "03", "06", "08"]

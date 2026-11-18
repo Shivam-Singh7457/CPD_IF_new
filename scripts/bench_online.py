@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Benchmark OnlineDetector throughput and memory scaling (Task 1 / Task 8).
+"""Benchmark OnlineDetector throughput and memory scaling.
 
 Two-pass benchmark:
 1. Speed pass: tracemalloc OFF, timing per-observation updates over 50,000 steps.

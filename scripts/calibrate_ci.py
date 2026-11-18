@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calibrate the confidence interval half-width multiplier 'a' on cicalib (Task 5)."""
+"""Calibrate the confidence interval half-width multiplier 'a' on calibration data."""
 from __future__ import annotations
 
 import argparse

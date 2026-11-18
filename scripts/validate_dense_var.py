@@ -1,11 +1,8 @@
-"""Task D – Detector-side robustness check with non-diagonal VAR(1).
+"""Detector robustness evaluation under non-diagonal VAR(1) dynamics.
 
-Validation scenario:
-  Random stable dense VAR(1) with ||A||_2 ≈ phi (off-diagonal mass present).
-  Evaluates null False Alarm Rate (FAR) using the existing calibration procedure
-  (thresholds calibrated on diagonal A).
-  Checks whether the coordinate-wise AR(1) finite-window LRV correction (eq. 6)
-  is adequate under cross-series temporal dependence.
+Simulates streams under random stable dense VAR(1) transition matrices with ||A||_2 ≈ phi
+(off-diagonal mass present) to assess null false-alarm rate (FAR) control when
+cross-series dependence violates the coordinate-wise AR(1) modeling assumption.
 """
 from __future__ import annotations
 
@@ -72,17 +69,17 @@ def _process_one_dense_null(args: tuple) -> bool:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Task D: Non-diagonal VAR(1) robustness check")
+    ap = argparse.ArgumentParser(description="Dense VAR(1) cross-series dependence robustness evaluation")
     ap.add_argument("--n-streams", type=int, default=DEFAULT_N_STREAMS, help="Null streams per phi")
     ap.add_argument("--workers", type=int, default=min(4, os.cpu_count() or 1))
-    ap.add_argument("--out-dir", type=Path, default=repo_root / "results" / "fix")
+    ap.add_argument("--out-dir", type=Path, default=repo_root / "results" / "tables")
     args = ap.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    out_csv = args.out_dir / "taskD_dense_var_robustness.csv"
-    out_json = args.out_dir / "taskD_dense_var_robustness.json"
+    out_csv = args.out_dir / "dense_var_robustness.csv"
+    out_json = args.out_dir / "dense_var_robustness.json"
 
-    print(f"=== Task D: Dense VAR(1) Robustness Evaluation ({args.n_streams} streams/phi, workers={args.workers}) ===")
+    print(f"=== Dense VAR(1) Robustness Evaluation ({args.n_streams} streams/phi, workers={args.workers}) ===")
     rows = []
     summary_by_phi = {}
 
@@ -127,14 +124,14 @@ def main():
     out_data = {
         "all_controlled": all_pass,
         "recommendation": (
-            "AR(1)-per-coordinate finite-window correction remains adequate for dense VAR(1)"
+            "Coordinate-wise AR(1) finite-window LRV correction remains adequate"
             if all_pass else
-            "Off-diagonal coupling inflates null FAR; doc tags must specify [V] validated for diagonal A"
+            "Off-diagonal coupling inflates null FAR; detector is empirically validated for diagonal VAR(1)"
         ),
         "results": summary_by_phi,
     }
     out_json.write_text(json.dumps(out_data, indent=2), encoding="utf-8")
-    print(f"\nTask D Summary: {'PASS (Dense VAR adequate)' if all_pass else 'FLAG (Doc tag must note diagonal A)'}")
+    print(f"\nRobustness Summary: {'FAR controlled' if all_pass else 'Cross-series coupling inflates FAR (diagonal VAR(1) recommended)'}")
     print(f"CSV saved to {out_csv}")
     print(f"JSON saved to {out_json}")
 

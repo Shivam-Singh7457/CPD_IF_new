@@ -1,9 +1,8 @@
-"""Tests for training fit (Task 1 / T1).
+"""Tests for training fit and long-run variance (LRV) estimation.
 
-T1 Acceptance Criterion:
-  isotropic VAR, phi in {0.3, 0.6, 0.8}, 40 null streams from the fast generator, m0=1000:
+Verification:
+  isotropic VAR, phi in {0.3, 0.6, 0.8}, 40 null streams from generator, m0=1000:
   the mean over coordinates and streams of sigma2_j is within 5% of 1/(1-phi)^2 for lrv_method="prewhiten".
-  (Bartlett option printed, not asserted).
 """
 from __future__ import annotations
 
@@ -52,8 +51,8 @@ def _generate_null_training_data(
 
 
 @pytest.mark.parametrize("phi", [0.3, 0.6, 0.8])
-def test_lrv_accuracy_t1(phi: float):
-    """T1: LRV accuracy on isotropic VAR with m0=1000, 40 null streams."""
+def test_lrv_accuracy(phi: float):
+    """Verify prewhitened LRV estimation accuracy on isotropic VAR with m0=1000."""
     n_streams = 40
     m0 = 1000
     p = 50

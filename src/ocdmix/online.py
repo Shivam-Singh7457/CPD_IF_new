@@ -75,11 +75,11 @@ class OnlineDetector:
         self._cumsum_current = np.zeros(self.p, dtype=np.float64)
 
         # Ring buffer for raw centred observations: shape [2*kmax, p]
-        # NOTE (Footnote G1 correction): While online monitoring only requires
-        # kmax+1 cumulative sums to evaluate dyadic windows k in K, post-alarm
-        # localization (Eq. 13) searches over m in [kmin, min(2*t_N, N - m0 + 1)].
-        # Because t_N can reach kmax, candidate windows can extend up to 2*kmax.
-        # Hence the ring buffer for observations must cover 2*kmax past observations.
+        # While online monitoring only requires kmax+1 cumulative sums to evaluate
+        # dyadic windows k in K, post-alarm localization (Eq. 13) searches over
+        # m in [kmin, min(2*t_N, N - m0 + 1)]. Because t_N can reach kmax, candidate
+        # windows can extend up to 2*kmax. Hence the ring buffer for observations
+        # must cover 2*kmax past observations.
         self._obs_buf = np.zeros((2 * self.kmax, self.p), dtype=np.float64)
         self._obs_head = 0
 

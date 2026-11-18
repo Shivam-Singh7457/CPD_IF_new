@@ -1,6 +1,5 @@
-"""Unit tests for Chen-Wang-Samworth (2024) post-alarm inference (Eq. 16-17).
+"""Unit tests for Chen-Wang-Samworth (2024) post-alarm inference.
 
-F6:
 1. Symmetry test: synthetic shift with b > 0 and b < 0 must give the same expected t_j.
 2. Mathematical verification of scale grid B, support S, b_tilde_j, t_j, and CI.
 3. Prewhitened residual variant comparison.
@@ -27,7 +26,7 @@ def test_make_scale_grid():
 
 
 def test_symmetry_positive_negative_shift():
-    """F6: synthetic shift with b > 0 and b < 0 must give the same expected t_j.
+    """Verify that synthetic shift with b > 0 and b < 0 produces equal expected t_j.
 
     By symmetry of the signed CUSUM objective:
         argmax_h { b_tilde_j * sum(zeta) - h * b_tilde_j^2 / 2 }
@@ -202,11 +201,11 @@ def test_decoupled_support_ci_and_report():
 
 
 # ---------------------------------------------------------------------------
-# Task A — G5 unit tests (added for ocdmix-inference-fix branch)
+# Signed CUSUM and tie-breaking unit tests
 # ---------------------------------------------------------------------------
 
 def test_negative_shift_tail_length_matches_positive_mirror():
-    """G5 (Task A): Negative-shift coordinate gives same t_j as positive-shift.
+    """Negative-shift coordinate gives same t_j as positive-shift mirror.
 
     With antithetic noise realisations (-Z vs +Z), the signed CUSUM
     objective is path-by-path identical:
@@ -258,7 +257,7 @@ def test_negative_shift_tail_length_matches_positive_mirror():
 
 
 def test_smallest_maximiser_tie_breaking():
-    """G5 (Task A): When multiple h values achieve the same CUSUM maximum,
+    """When multiple h values achieve the same CUSUM maximum,
     the SMALLEST h must be returned (CWS Algorithm 1 specification).
 
     We construct a synthetic ζ sequence where the maximum is achieved at
@@ -327,7 +326,7 @@ def test_smallest_maximiser_tie_breaking():
 
 
 def test_scale_grid_b_union_b0():
-    """G5 (Task A/B): B∪B0 grid must contain b_min as the first element,
+    """B∪B0 grid must contain b_min as the first element,
     be strictly increasing, and have the 2^(1/2) geometric ratio between
     consecutive elements starting from index 0."""
     for b_min in [0.05, 0.1, 0.2, 0.5]:
@@ -342,7 +341,7 @@ def test_scale_grid_b_union_b0():
 
 
 def test_new_mode_anchor_excluded_then_reported():
-    """G5 (Task B): In inference_mode='new', anchor j_hat must be excluded from
+    """In CWS mode, anchor j_hat must be excluded from
     S_hat (support_CI) and re-added to support_report = S_hat U {j_hat}.
     """
     p = 20

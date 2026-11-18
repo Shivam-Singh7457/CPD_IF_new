@@ -2,7 +2,7 @@
   "registration_timestamp": "2026-10-31T06:50:00Z",
   "frozen_config_path": "results/baselines/frozen_ocdmix_config.json",
   "config_hash": "1bcca0e02e7ed23f0d9f5ca83ec1d5e907487da11880107eadf81b4d2f433c27",
-  "authoritative_ocdmix_results_set": "results/fix/ (task1_adopted_calibration.csv, taskC_eval_coverage.csv, taskC_eval_gates.json)",
+  "authoritative_ocdmix_results_set": "results/tables/ (ci_calibration_grid.csv, ci_eval_coverage.csv, dense_var_robustness.csv)",
   "seed_partitioning": {
     "calibration_seed_range": [20270100, 20275000],
     "evaluation_seed_range": [20280100, 20290000],

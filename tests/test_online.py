@@ -45,9 +45,10 @@ def _create_stream(phi: float, T: int, p: int, change: bool, seed: int = 123) ->
     return X
 
 
-def test_batch_vs_online_t4():
-    """T4: OnlineDetector alarm time, tail length (t_N), and nu_hat equal batch scan results,
-    and standardised statistics agree to relative tolerance 1e-9 for 5 streams."""
+def test_batch_vs_online():
+    """Verify that OnlineDetector produces identical results to batch scan:
+    alarm time, tail length (t_N), and nu_hat match, and standardised statistics
+    agree within 1e-9 relative tolerance across streams."""
     p = 50
     T = 4000
     m0 = 1000
@@ -125,8 +126,8 @@ def test_batch_vs_online_t4():
             )
 
 
-def test_constant_memory_t5():
-    """T5: tracemalloc peak of OnlineDetector after 20,000 and after 200,000 updates differs by <5%."""
+def test_constant_memory():
+    """Verify constant memory: peak memory of OnlineDetector between 20k and 200k steps differs by <5%."""
     p = 50
     m0 = 1000
     # Create a synthetic fit object

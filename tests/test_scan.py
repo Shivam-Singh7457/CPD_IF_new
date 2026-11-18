@@ -1,8 +1,9 @@
-"""Tests for scan module (T2 and T3).
+"""Tests for scan module and window sum standardisation.
 
-T2 Standardisation: on null streams, the pooled mean of W^2 for k in {8,32,128,512}, t>=m0,
-    lies in [0.93,1.10] for phi in {0,0.3,0.6,0.8} (prototype: 1.00 to 1.04).
-T3 Window sums: C[t]-C[t-k] equals a brute-force sum for 20 random (t,k).
+Verifies:
+- Standardisation: on null streams, the empirical second moment of W lies in [0.93, 1.10]
+  across scales k in {8, 32, 128, 512} and phi in {0, 0.3, 0.6, 0.8}.
+- Window sums: cumulative sum difference C[t]-C[t-k] equals brute-force summation.
 """
 from __future__ import annotations
 
@@ -37,8 +38,8 @@ def _generate_stream(phi: float, T: int = 5000, p: int = 50, seed: int = 42) -> 
     return X
 
 
-def test_window_sums_t3():
-    """T3: C[t] - C[t-k] equals brute-force sum for 20 random (t, k)."""
+def test_window_sums():
+    """Verify that C[t] - C[t-k] equals brute-force sum for 20 random (t, k)."""
     p = 50
     T = 5000
     m0 = 1000
@@ -75,8 +76,8 @@ def test_window_sums_t3():
 
 
 @pytest.mark.parametrize("phi", [0.0, 0.3, 0.6, 0.8])
-def test_standardisation_t2(phi: float):
-    """T2: Pooled mean of W^2 for k in {8, 32, 128, 512}, t>=m0, lies in [0.93, 1.10]."""
+def test_standardisation_variance(phi: float):
+    """Verify pooled second moment of standardised statistics W stays in [0.93, 1.10]."""
     n_streams = 20
     T = 5000
     m0 = 1000

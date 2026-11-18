@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Task 2: Evaluation of 1000 extra null streams per phi with oracle and self-calibration."""
+"""Evaluate null-stream false alarm rates with oracle and self-calibration across phi settings."""
 from __future__ import annotations
 
 import argparse

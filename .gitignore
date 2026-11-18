@@ -4,4 +4,9 @@ __pycache__/
 *.pyc
 .pytest_cache/
 *.npz
-results/fix/cache/
+*.egg-info/
+build/
+dist/
+.coverage
+htmlcov/
+

@@ -1,8 +1,7 @@
-"""Tests for detector blindness (T8).
+"""Tests for detector blindness to ground truth.
 
-T8 Acceptance Criterion:
-  Asserts none of the detector/calibration modules opens ground_truth.jsonl or manifest.json
-  (by inspecting source for those strings and by running with those files removed).
+Verifies that none of the detector/calibration modules inspects ground_truth.jsonl
+or manifest.json at import or runtime.
 """
 from __future__ import annotations
 

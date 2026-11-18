@@ -127,7 +127,7 @@ def calibrate_thresholds(
         tau_Q = c_Q
         alarmed = M_Q > c_Q
     elif joint:
-        # G2: Joint maximum calibration at level alpha0
+        # Joint maximum calibration at level alpha0
         # Standardise each statistic by its marginal (1 - alpha0) quantile
         c_A_marg = float(np.quantile(M_A, 1.0 - alpha0))
         c_Q_marg = float(np.quantile(M_Q, 1.0 - alpha0))
@@ -186,11 +186,11 @@ def self_calibrate(
     seed: int = 20261014,
     joint: bool = False,
 ) -> CalibrationResult:
-    """Task 9: Self-calibration from training segment X_train (m0, p).
+    """Autonomous self-calibration from training segment X_train (m0, p).
 
     Fits per-coordinate AR(1) coefficients and innovation covariance from X_train,
     simulates n_sim_streams null streams of length T from the fitted model,
-    and computes c_A, c_Q by E10.
+    and computes empirical thresholds c_A, c_Q.
     """
     X_train = np.asarray(X_train, dtype=np.float64)
     p = X_train.shape[1]

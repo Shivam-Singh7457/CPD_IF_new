@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run evaluation of change-point detector on a dataset against ground truth (Task 6)."""
+"""Run evaluation of the change-point detector on a dataset against ground truth."""
 from __future__ import annotations
 
 import argparse

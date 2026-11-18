@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tune support threshold parameter 'z' on cicalib and evaluate on test sets (Task 4).
+"""Tune support threshold parameter 'z' on cicalib and evaluate on test sets.
 
 Optimization criterion:
 Choose z on the cicalib set only to maximize Jaccard subject to precision >= 0.90.
@@ -157,7 +157,7 @@ def tune_z_on_cicalib(cicalib_items: list[dict]) -> tuple[float, float, pd.DataF
 
 
 def main() -> None:
-    print("--- Task 4: Tune Support Threshold z on cicalib ---")
+    print("--- Tune Support Threshold z on cicalib ---")
     cicalib_dir = PROJECT_ROOT / "data" / "cicalib"
     calib_phi06 = PROJECT_ROOT / "results" / "calib" / "proposed_phi06.json"
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Task 9: Self-calibration experiment and comparison with oracle calibration."""
+"""Self-calibration experiment comparing self-calibrated thresholds with oracle calibration."""
 from __future__ import annotations
 
 import argparse
@@ -14,7 +14,7 @@ from ocdmix.io import load_observations
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run Task 9 self-calibration vs oracle comparison.")
+    parser = argparse.ArgumentParser(description="Run self-calibration vs oracle comparison.")
     parser.add_argument("--out-csv", type=str, default="results/tables/self_calibration_comparison.csv")
     parser.add_argument("--out-json", type=str, default="results/calib/self_calibration_comparison.json")
     args = parser.parse_args()
@@ -24,7 +24,7 @@ def main() -> None:
 
     results = []
 
-    print("Running Task 9 Self-Calibration (simulating 300 null streams per phi)...")
+    print("Running self-calibration vs oracle (simulating 300 null streams per phi)...")
 
     for phi, tag in zip(phis, tags):
         oracle_json = Path(f"results/calib/proposed_phi{tag}.json")

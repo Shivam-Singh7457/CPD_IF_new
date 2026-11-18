@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""G2: Compare joint calibration of (c_A, c_Q) at level alpha0 vs alpha0/2 split."""
+"""Compare joint calibration of (c_A, c_Q) at level alpha0 vs the alpha0/2 split strategy."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -15,7 +15,7 @@ def main() -> None:
     phis = ["00", "03", "06", "08"]
     records = []
 
-    print("=== G2: Joint Calibration vs alpha0/2 Split Comparison ===")
+    print("=== Joint Calibration vs alpha0/2 Split Comparison ===")
     for tag in phis:
         null_dir = data_dir / f"calib_null_phi{tag}"
         if not null_dir.exists():

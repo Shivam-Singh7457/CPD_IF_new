@@ -1,4 +1,4 @@
-"""Tests for the fast generator (Task 0).
+"""Tests for synthetic stream generation.
 
 Checks:
   - phi=0.6, p=50, 50 null streams:
@@ -76,18 +76,19 @@ def _bartlett_lrv_per_coord(X: np.ndarray, L: int = 60) -> np.ndarray:
 
 
 class TestFastGenerator:
-    """Tests for Task 0 fast generator."""
+    """Statistical verification for synthetic stream generator."""
 
     PHI = 0.6
     P = 50
     N_STREAMS = 50
     T = 5000
 
+    @classmethod
     @pytest.fixture(scope="class")
-    def null_streams(self):
+    def null_streams(cls):
         """Generate null streams once for all tests in this class."""
         return _generate_null_streams(
-            self.N_STREAMS, self.T, self.P, self.PHI, seed=42
+            cls.N_STREAMS, cls.T, cls.P, cls.PHI, seed=42
         )
 
     def test_marginal_variance(self, null_streams: np.ndarray):

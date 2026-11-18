@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate figures, summary tables, and final report from evaluation results (Task 7)."""
+"""Generate figures, summary tables, and the final results report from evaluation outputs."""
 from __future__ import annotations
 
 import argparse

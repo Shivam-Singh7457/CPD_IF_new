@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run Task 2 full evaluation: Oracle and Self-Calibration across 1000 null streams per phi."""
+"""Null-stream evaluation with oracle and self-calibration across 1000 streams per phi."""
 from __future__ import annotations
 
 import argparse
@@ -165,7 +165,7 @@ def main() -> None:
         obs = load_observations(dataset_dir, mmap=True)
         N = min(args.n_streams, obs.shape[0])
         print(f"\n==================================================")
-        print(f"Running Task 2 for phi={phi} ({N} streams, n_sim={args.n_sim}, workers={args.workers})...")
+        print(f"Running evaluation for phi={phi} ({N} streams, n_sim={args.n_sim}, workers={args.workers})...")
         t0 = time.perf_counter()
 
         tasks = []
@@ -224,7 +224,7 @@ def main() -> None:
     summary_df = pd.DataFrame(summary_rows)
     Path(args.out_csv).parent.mkdir(parents=True, exist_ok=True)
     summary_df.to_csv(args.out_csv, index=False)
-    print(f"\nTask 2 summary written to {args.out_csv}")
+    print(f"\nSummary written to {args.out_csv}")
 
 
 if __name__ == "__main__":

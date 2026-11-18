@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run ablations for vanilla and proposed (Task 3).
+"""Run ablation experiments comparing vanilla and proposed detector variants.
 
 Ablations:
 1. l-infinity statistic only (linf_only)

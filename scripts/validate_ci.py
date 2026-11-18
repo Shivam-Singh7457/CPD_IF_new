@@ -1,15 +1,7 @@
-"""Task C – Honest CI calibration and held-out validation.
+"""Confidence interval calibration and held-out validation protocol.
 
-Protocol:
-  1. Calibration set:  seeds 20270100..20270100+N_CALIB-1  (per (phi, effect))
-  2. Evaluation set:   seeds 20280100..20280100+N_EVAL-1   (per (phi, effect), N_EVAL >= 1000)
-  Both sets are independent.
-
-Acceptance gates checked:
-  G3: Held-out CI coverage in new mode >= 0.95 - 1 SE at every phi and effect;
-      reports mean CI width and width/mean-delay ratio.
-  G4: Support: with c_rep=0.8, held-out Jaccard >= Bonferroni-3.29 Jaccard at every phi;
-      with c_CI and ell=0, recall of S_hat U {j_hat} reported, and recall increases with ell in {0, 20, 50}.
+Evaluates empirical coverage, mean width, and support recovery across
+dependence levels phi in {0.0, 0.3, 0.6, 0.8} and effect sizes {1.0, 1.5}.
 """
 from __future__ import annotations
 
@@ -287,19 +279,19 @@ def run_eval_cell(
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Task C: Honest CI calibration and held-out validation")
+    ap = argparse.ArgumentParser(description="Confidence interval calibration and held-out validation")
     ap.add_argument("--mode", choices=["calib", "eval", "both"], default="both")
     ap.add_argument("--c-ci", type=float, default=None, help="Force specific c_CI value")
     ap.add_argument("--n-calib", type=int, default=DEFAULT_N_CALIB, help="Streams per cell for calibration")
     ap.add_argument("--n-eval", type=int, default=DEFAULT_N_EVAL, help="Streams per cell for evaluation (>=1000)")
-    ap.add_argument("--out-dir", type=Path, default=repo_root / "results" / "fix")
+    ap.add_argument("--out-dir", type=Path, default=repo_root / "results" / "tables")
     ap.add_argument("--workers", type=int, default=min(4, os.cpu_count() or 1))
     args = ap.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    calib_csv = args.out_dir / "taskC_calib_ci_grid.csv"
-    eval_csv = args.out_dir / "taskC_eval_coverage.csv"
-    eval_json = args.out_dir / "taskC_eval_gates.json"
+    calib_csv = args.out_dir / "ci_calibration_grid.csv"
+    eval_csv = args.out_dir / "ci_eval_coverage.csv"
+    eval_json = args.out_dir / "ci_eval_summary.json"
 
     calib_rows = []
 
@@ -488,19 +480,19 @@ def main():
         summary = {
             "c_CI_chosen": c_CI_chosen,
             "c_rep": DEFAULT_C_REP,
-            "G3_coverage_pass": bool(g3_all_pass),
-            "G4_support_pass": bool(g4_all_pass),
-            "G4_jaccard_by_phi": g4_jaccard_by_phi,
-            "G4_recall_monotone": g4_recall_monotone,
+            "ci_coverage_pass": bool(g3_all_pass),
+            "support_recovery_pass": bool(g4_all_pass),
+            "jaccard_by_phi": g4_jaccard_by_phi,
+            "recall_monotone": g4_recall_monotone,
             "cells": gates,
         }
         eval_json.write_text(json.dumps(summary, indent=2, default=_json_default), encoding="utf-8")
 
-        print("\n================ FINAL GATES SUMMARY ================")
-        print(f"Gate G3 (CI coverage >= 95% - 1 SE): {'PASS' if g3_all_pass else 'FAIL'}")
-        print(f"Gate G4 (Support Jaccard >= Bonferroni & recall increases with ell): {'PASS' if g4_all_pass else 'FAIL'}")
+        print("\n================ VALIDATION SUMMARY ================")
+        print(f"CI Coverage (target >= 95% - 1 SE): {'PASS' if g3_all_pass else 'FAIL'}")
+        print(f"Support Recovery (Jaccard >= baseline & recall monotonic in ell): {'PASS' if g4_all_pass else 'FAIL'}")
         print(f"Evaluation results written to {eval_csv}")
-        print(f"Gates summary written to {eval_json}")
+        print(f"Validation summary written to {eval_json}")
 
 
 if __name__ == "__main__":

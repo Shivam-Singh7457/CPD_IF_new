@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""F7: Comprehensive evaluation and comparison of post-alarm inference.
+"""Comprehensive evaluation and comparison of post-alarm confidence interval methods.
 
 Evaluates:
 (a) Old heuristic interval (Eq. 15, a(r_hat) * m*)
@@ -228,7 +228,7 @@ def generate_change_dataset(phi: float, effect: float = 1.5, n_streams: int = 20
 
 def main():
     print("=" * 80)
-    print("F7: Running evaluation of (a) Old CI, (b) F5 Zeta, (c) F5 Residuals")
+    print("Running evaluation of (a) Old CI, (b) Zeta-standardised CI, (c) Residual-based CI")
     print("=" * 80)
 
     # Scenarios: calibrated phis (0.0, 0.3, 0.6, 0.8) and validation phis (0.45, 0.70)

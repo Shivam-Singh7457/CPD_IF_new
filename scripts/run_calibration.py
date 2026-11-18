@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calibrate detection thresholds on null streams (Task 4)."""
+"""Calibrate detection thresholds on null streams."""
 from __future__ import annotations
 
 import argparse

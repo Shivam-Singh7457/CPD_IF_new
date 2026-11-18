@@ -95,7 +95,7 @@ Evaluated on $n = 200$ independent streams per scenario ($T = 5000, m_0 = 1000, 
 
 ---
 
-### 4. Task 1: Two-Pass Online Throughput and Memory Benchmarks
+### 4. Throughput and Memory Benchmarks
 
 Following the two-pass benchmark specification:
 1. **Speed pass**: `tracemalloc` turned **OFF**, measuring raw throughput across 50,000 streaming updates;
@@ -127,13 +127,13 @@ Saved in `results/tables/benchmark_online.csv`, `results/tables/benchmark_speed.
 
 ---
 
-### 5. Task 2: 1,000 Extra Null Streams Evaluation (Oracle vs. Self-Calibration)
+### 5. Null-Stream Evaluation: Oracle vs. Self-Calibration (1,000 Streams)
 
 We generated 1,000 additional independent null streams per $\phi \in \{0.0, 0.3, 0.6, 0.8\}$ (scenarios 400, 401, 402, 403, length $T=5000, p=50$) using the fast generator. Each stream is evaluated under:
 1. **Oracle Calibration**: using threshold parameters $(c_A, c_Q)$ calibrated on external null archives;
 2. **Self-Calibration**: threshold parameters computed **separately for EACH stream** from its own $X[0:m_0]$ pre-change segment via simulated null paths.
 
-Saved in `results/tables/task2_full_1000.csv` and per-stream CSVs:
+Saved in `results/tables/null_eval_1000.csv` and per-stream CSVs:
 
 | Dependence $\phi$ | $N_{\text{streams}}$ | Oracle FAR $\hat{\alpha}_{\text{oracle}}$ | Oracle SE | Self-Calib FAR $\hat{\alpha}_{\text{self}}$ | Self-Calib SE | Mean Self $c_A$ | Oracle $c_A$ | Mean Self $c_Q$ | Oracle $c_Q$ |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -149,7 +149,7 @@ Saved in `results/tables/task2_full_1000.csv` and per-stream CSVs:
 
 ---
 
-### 6. Task 3: Ablation Studies in `run_eval`
+### 6. Ablation Studies
 
 We evaluate the detector components via three structural ablations:
 1. **$\ell_\infty$-statistic only (`linf`)**: chart $A$ alone, setting $c_Q = \infty$;
@@ -185,7 +185,7 @@ All 72 ablation evaluations are summarized in `results/tables/ablations_summary.
 
 ---
 
-### 7. Task 4: Support Threshold $z$ Parameter Optimization
+### 7. Support Threshold $z$ Parameter Optimization
 
 Rather than using the hardcoded two-sided normal quantile $z_0 = \Phi^{-1}(1 - 0.05 / 2p) = 3.2905$, we treat $z$ as a tunable parameter.
 
@@ -220,7 +220,7 @@ Evaluated across all 8 changed evaluation datasets (saved in `results/tables/sup
 
 ---
 
-### 8. Task 5: Per-$\phi$ CI Multiplier, $a(\hat{r})$ Fit, and Median Estimation Error
+### 8. Per-$\phi$ CI Multiplier, $a(\hat{r})$ Fit, and Median Estimation Error
 
 We generate dedicated CI calibration sets for each $\phi \in \{0.0, 0.3, 0.6, 0.8\}$ ($n=200$, effect 1.0) and calibrate the multiplier $a$ targeting 95% empirical coverage. We then fit $a$ as a function of the mean pre-change AR(1) coefficient $\hat{r}$.
 
@@ -259,7 +259,7 @@ We evaluate dynamic $a(\hat{r})$ against fixed $a = 0.5010$ (cicalib default) an
 
 ---
 
-### 9. Task 6: Figure 2 Refinements and Final Polish
+### 9. Figure 2 Refinements and Final Polish
 
 In `scripts/make_report.py`:
 1. `bbox_inches="tight"` is applied to eliminate figure cutoff;

@@ -1,6 +1,7 @@
-"""Tests for power sanity (Task 6 / T7).
+"""Tests for detector power and sensitivity under large mean shifts.
 
-T7 Power sanity: with effect 3.0, phi=0.6, sparsity 0.1:
+Verification:
+    with effect 3.0, phi=0.6, sparsity 0.1:
     detection rate >=99% and median delay <60.
 """
 from __future__ import annotations
@@ -19,8 +20,8 @@ from ocdmix.fit import fit_training
 from ocdmix.scan import compute_statistics_vectorised, detect_alarm
 
 
-def test_power_sanity_t7():
-    """T7: effect 3.0, phi=0.6, sparsity 0.1 -> detection >= 99% and median delay < 60."""
+def test_power_sanity():
+    """Verify high power (>=99%) and bounded delay (<60) under effect=3.0, phi=0.6."""
     p = 50
     T = 3000
     m0 = 1000

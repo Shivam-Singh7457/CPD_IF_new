@@ -1,7 +1,7 @@
-"""Tests for calibration module (Task 4 / T6).
+"""Tests for threshold calibration under serial independence.
 
-T6 Reduction to independence: with phi=0, c_A of "proposed" and of "vanilla"
-    differ by <10% on the same null set.
+Reduction to independence: with phi=0, c_A of 'proposed' and of 'vanilla'
+differ by <10% on the same null set.
 """
 from __future__ import annotations
 
@@ -39,8 +39,8 @@ def _generate_null_dataset(n_streams: int, T: int, p: int, phi: float = 0.0, see
     return obs
 
 
-def test_reduction_to_independence_t6():
-    """T6: with phi=0, c_A of 'proposed' and 'vanilla' differ by <10% on the same null set."""
+def test_reduction_to_independence():
+    """Verify that with phi=0, c_A of 'proposed' and 'vanilla' agree within 10%."""
     n_streams = 40
     T = 5000
     p = 50

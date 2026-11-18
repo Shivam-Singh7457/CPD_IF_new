@@ -132,9 +132,8 @@ def localize_from_buffer(
     m_min: Optional[int] = None,
     z: Optional[float] = None,
 ) -> tuple[Optional[int], Optional[tuple[int, int]], Optional[list[int]]]:
-    """E12-E14: localise from the observation ring buffer (for OnlineDetector).
+    """Localise from the observation ring buffer (for OnlineDetector).
 
-    Footnote G1:
     The ring buffer must cover length at least 2*kmax because the post-alarm
     local refinement window m ranges up to min(2*t_N, N - m0 + 1), where
     t_N can be as large as kmax. Thus up to 2*kmax past observations are required.
@@ -209,7 +208,7 @@ def localize_from_buffer(
 
 
 # ---------------------------------------------------------------------------
-# F1-F5: Chen-Wang-Samworth (2024) post-alarm inference (Eq. 16-17)
+# Post-alarm inference: Chen-Wang-Samworth (2024) procedure
 # ---------------------------------------------------------------------------
 
 def make_scale_grid(b_min: float, p: int) -> np.ndarray:
@@ -228,10 +227,9 @@ def make_scale_grid(b_min: float, p: int) -> np.ndarray:
 
 
 def _a_r_bar(r_bar: float) -> float:
-    """Legacy a(r̄) multiplier: a = 0.1222 + 1.1604·r̄.
+    """Heuristic a(r̄) multiplier: a = 0.1222 + 1.1604·r̄.
 
-    Only used in inference_mode='legacy' (E13 CI half-width).
-    Do NOT use in inference_mode='new'.
+    Used in legacy inference mode for empirical CI half-width.
     """
     return 0.1222 + 1.1604 * float(r_bar)
 
@@ -333,18 +331,10 @@ def _localize_chen_legacy(
     kmax: Optional[int] = None,
     use_residuals: bool = False,
 ) -> dict:
-    """Legacy (pre-Task B) localize_chen implementation.
+    """Legacy localize_chen implementation.
 
-    Implements F1-F5 as originally coded, preserved verbatim behind the
-    inference_mode='legacy' flag.  Do NOT modify this function.
-
-    F1  E_j = Σ_{i=N-h+1}^{N+ℓ} ζ_{i,j} / sqrt(h+ℓ),
-        ζ = (X - µ̂)/σ̂  (LRV-standardised) or prewhitened residuals.
-    F2  Support: {j : |E_j| − b_min sqrt(m*+ℓ) ≥ d1},  d1 = c sqrt(log(p/α)).
-    F3  b̃_j = sgn(E_j) max{b ∈ B∪B0 : |E_j| − b sqrt(m*+ℓ) ≥ d1}.
-    F4  t_j = smallest argmax_h {b̃_j Σ ζ − h b̃_j²/2} (Task A fix applied).
-    F5  CI = [max(N − min_j(t_j + 4d1²/b̃_j²), m0), N].
-    a(r̄) = 0.1222 + 1.1604·r̄  is available but applied externally via ci_a.
+    Maintained for comparison with earlier heuristic benchmarks.
+    Computes standardised statistics, support recovery, tail lengths, and CI.
     """
     X = np.asarray(X, dtype=np.float64)
     p = fit.p
@@ -359,7 +349,7 @@ def _localize_chen_legacy(
     actual_ell = N_end - N
 
     # ------------------------------------------------------------------
-    # F1: Build standardised series ζ (full stream)
+    # Step 1: Standardised series (full stream)
     # ------------------------------------------------------------------
     if use_residuals:
         Xc = X - fit.mu
@@ -377,7 +367,7 @@ def _localize_chen_legacy(
     E = np.sum(zeta[start_E:end_E], axis=0) / np.sqrt(h + actual_ell)
 
     # ------------------------------------------------------------------
-    # F2: Support for CI (S_CI) and Support for reporting (S_report)
+    # Step 2: Support for CI (S_CI) and Support for reporting (S_report)
     # ------------------------------------------------------------------
     d1 = c_support * np.sqrt(np.log(max(p / alpha, 1.0)))
     sqrt_ml = np.sqrt(m_star + actual_ell)
@@ -394,7 +384,7 @@ def _localize_chen_legacy(
     support = support_ci
 
     # ------------------------------------------------------------------
-    # F3: Scale grid B and b̃_j
+    # Step 3: Scale grid B and b̃_j
     # ------------------------------------------------------------------
     B = make_scale_grid(b_min, p)
     b_tilde = np.zeros(p, dtype=np.float64)
@@ -406,8 +396,7 @@ def _localize_chen_legacy(
             b_tilde[j] = np.sign(E[j]) * b_min
 
     # ------------------------------------------------------------------
-    # F4: Tail length t_j (signed CUSUM, sum to N only)
-    # Smallest maximiser rule (Task A fix).
+    # Step 4: Tail length t_j (signed CUSUM, sum to N only)
     # ------------------------------------------------------------------
     t_j = np.zeros(p, dtype=int)
     max_h = min(kmax, N - m0)
@@ -428,7 +417,7 @@ def _localize_chen_legacy(
         t_j[j] = best_h
 
     # ------------------------------------------------------------------
-    # F5: Confidence interval
+    # Step 5: Confidence interval
     # ------------------------------------------------------------------
     if len(support) > 0:
         ci_offsets = []
@@ -476,22 +465,20 @@ def _localize_chen_new(
     b_min: float = 0.1,
     kmax: Optional[int] = None,
 ) -> dict:
-    """CWS Algorithm 1 compliant post-alarm inference (new mode, Task B).
+    """Chen, Wang & Samworth (2024) Algorithm 1 compliant post-alarm inference.
 
-    Differences from legacy mode:
+    Procedure overview:
     1. E_j = Σ_{i=N-m*+1}^{N+ℓ} (X_{ij} − µ̂_j) / ŝ_{k,j}
        where k = m* + ℓ and ŝ_{k,j} = sqrt(s2_table[k, j]).
-       Note: k is used for the window sum normalisation but the SUM itself
-       still runs over [N-m*+1 .. N+ℓ] (m* + ℓ terms).
-    2. Anchor ĵ = argmax_j |W_{N,m*,j}|  (largest marginal statistic at alarm).
-    3. Ŝ = {j ≠ ĵ : |E_j| − b_min·√k ≥ d1_CI},  d1_CI = c_CI·√log(p/α).
-    4. Reported support = Ŝ ∪ {ĵ}   (anchor always included).
-    5. b̃_j = sgn(E_j) · max{b ∈ B∪B0 : |E_j| − b·√k ≥ d1_CI}.
-    6. t_j: h searched over 0 .. N-m0 (NOT capped at kmax by default).
-       If N-m0 > kmax, a tail_cap_flag is set; t_j is truncated to kmax.
-    7. CI = [max(N − min_{j∈Ŝ}(t_j + 4·d1_CI²/b̃_j²), m0), N].
-       Only j ∈ Ŝ (NOT ĵ) contribute to the CI minimisation (per CWS Alg 1).
-    8. a(r̄) NOT used.
+       Note: k is used for the window sum normalisation while the sum
+       runs over [N-m*+1 .. N+ℓ] (m* + ℓ terms).
+    2. Anchor coordinate ĵ = argmax_j |W_{N,m*,j}| (largest marginal statistic).
+    3. Ŝ = {j ≠ ĵ : |E_j| − b_min·√k ≥ d1_CI}, where d1_CI = c_CI·√log(p/α).
+    4. Reported support = Ŝ ∪ {ĵ} (anchor always included).
+    5. Multi-scale effect magnitude: b̃_j = sgn(E_j) · max{b ∈ B∪B0 : |E_j| − b·√k ≥ d1_CI}.
+    6. Tail lengths t_j: searched over h in [0 .. N-m0], truncated to kmax if memory bounded.
+    7. Confidence interval: CI = [max(N − min_{j∈Ŝ}(t_j + 4·d1_CI²/b̃_j²), m0), N].
+       Only coordinates j ∈ Ŝ contribute to the CI minimisation per CWS Algorithm 1.
 
     Parameters
     ----------
@@ -606,12 +593,12 @@ def _localize_chen_new(
     # ------------------------------------------------------------------
     # Step 5: Tail length t_j (signed CUSUM, sum over [0, N-m0])
     # Search h ∈ [0, N-m0]; flag if truncated by kmax.
-    # Uses LRV-standardised zeta (same as legacy F4).
+    # Uses LRV-standardised zeta.
     # ------------------------------------------------------------------
     sigma_hat = np.sqrt(np.maximum(fit.sigma2, 1e-16))
     zeta = (X - fit.mu) / sigma_hat[np.newaxis, :]   # (T, p)
 
-    full_max_h = N - m0           # full range per CWS (Task B.7)
+    full_max_h = N - m0           # full search range
     tail_cap_flag = full_max_h > kmax
     max_h = min(kmax, full_max_h) if kmax is not None else full_max_h
 
