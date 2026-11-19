@@ -1,4 +1,3 @@
-"""Evaluation metrics against ground truth for change-point detection."""
 from __future__ import annotations
 
 import math
@@ -10,7 +9,6 @@ import numpy as np
 
 @dataclass
 class StreamEvaluation:
-    """Per-stream evaluation record."""
     stream_id: int
     b: Optional[int]
     alarm_N: Optional[int]
@@ -63,7 +61,6 @@ def evaluate_single_stream(
 
     # Changed stream
     if alarm_N is None:
-        # No alarm before horizon T
         return StreamEvaluation(
             stream_id=stream_id,
             b=b,
@@ -98,7 +95,6 @@ def evaluate_single_stream(
             support_jaccard=None,
         )
 
-    # Detected: alarm_N >= b
     delay = alarm_N - b
     abs_err = abs(nu_hat - b) if nu_hat is not None else None
 
@@ -155,12 +151,11 @@ def summarize_evaluations(
         return {}
 
     if is_null:
-        # False-alarm probability over the horizon (null)
         n_fa = sum(1 for r in records if r.false_alarm)
         far = n_fa / n
         far_se = math.sqrt(far * (1.0 - far) / n) if n > 0 else 0.0
 
-        # Censored ARL estimate: run length is N - m0 + 1 if alarm else T - m0
+        # Censored ARL estimate
         run_lengths = [
             (r.alarm_N - m0 + 1) if r.alarm_N is not None else (T - m0)
             for r in records
@@ -193,7 +188,6 @@ def summarize_evaluations(
         median_delay = None
         p90_delay = None
 
-    # Coverage among detected streams with valid CI
     cov_list = [r.ci_covers for r in records if r.detected and r.ci_covers is not None]
     if cov_list:
         coverage = float(np.mean(cov_list))

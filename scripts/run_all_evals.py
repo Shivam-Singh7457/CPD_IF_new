@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Run all 24 evaluation experiments in parallel (Step d)."""
 from __future__ import annotations
 
 import argparse
@@ -23,7 +22,6 @@ def build_eval_tasks() -> list[dict]:
         van_calib = "results/calib/vanilla_iid.json"
         ci_json = "results/calib/ci_a.json"
 
-        # 1. Null streams
         null_dir = f"data/null_phi{tag}"
         tasks.append({
             "name": f"proposed_null_phi{tag}",
@@ -44,7 +42,6 @@ def build_eval_tasks() -> list[dict]:
             "out_json": f"results/eval/vanilla_null_phi{tag}.json",
         })
 
-        # 2. Changed streams: e10 and e15
         for eff in ["e10", "e15"]:
             change_dir = f"data/change_phi{tag}_{eff}"
             tasks.append({

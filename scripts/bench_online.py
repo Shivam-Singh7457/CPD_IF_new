@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""Benchmark OnlineDetector throughput and memory scaling.
-
-Two-pass benchmark:
-1. Speed pass: tracemalloc OFF, timing per-observation updates over 50,000 steps.
-2. Memory pass: tracemalloc started BEFORE detector is built, recording:
-   - footprint_kib_after_build
-   - live_kib and peak_kib at 5k, 20k, 50k steps (reset_peak between checkpoints)
-"""
 from __future__ import annotations
 
 import argparse
@@ -30,7 +22,6 @@ def benchmark_single_p(
     m0: int = 1000,
     seed: int = 20261014,
 ) -> tuple[dict, dict]:
-    """Two-pass benchmark for dimension p: speed pass and memory pass."""
     rng = np.random.default_rng(seed + p)
 
     # Pre-generate synthetic training data and cyclic test data pool
@@ -40,9 +31,7 @@ def benchmark_single_p(
     pool_size = 5000
     data_pool = rng.standard_normal((pool_size, p))
 
-    # =========================================================================
-    # PASS 1: Speed Pass (tracemalloc OFF)
-    # =========================================================================
+    # pass 1: speed
     detector_speed = OnlineDetector(fit, c_A=100.0, c_Q=100.0)
     for t in range(m0):
         detector_speed.update(X_train[t])
@@ -64,9 +53,7 @@ def benchmark_single_p(
         "updates_per_sec": updates_per_sec,
     }
 
-    # =========================================================================
-    # PASS 2: Memory Pass (tracemalloc started BEFORE detector is built)
-    # =========================================================================
+    # pass 2: memory
     del detector_speed
     gc.collect()
 
@@ -78,7 +65,6 @@ def benchmark_single_p(
     current_mem, _ = tracemalloc.get_traced_memory()
     footprint_kib_after_build = current_mem / 1024.0
 
-    # Feed training steps
     for t in range(m0):
         detector_mem.update(X_train[t])
 
@@ -145,7 +131,6 @@ def main() -> None:
         combined = {**speed_rec, **mem_rec}
         combined_results.append(combined)
 
-    # Save CSVs
     Path(args.out_speed).parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(speed_results).to_csv(args.out_speed, index=False)
     pd.DataFrame(mem_results).to_csv(args.out_mem, index=False)

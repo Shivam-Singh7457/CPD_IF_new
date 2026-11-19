@@ -1,19 +1,19 @@
-# OCD-Mix: Final Verification Summary and Baseline Comparison
+# OCD-Mix: Empirical Verification Summary and Baseline Comparison
 
-This report details the final validation of the **OCD-Mix** codebase following the implementation of Tasks A–F under the `ocdmix-inference-fix` branch. All evaluations adhere strictly to the honest validation protocol (evaluation on independent held-out seeds with no post-hoc tuning).
+This document summarizes the validation of the **OCD-Mix** implementation. All evaluations adhere strictly to an independent validation protocol (evaluated on held-out synthetic streams with fixed random seeds).
 
 ---
 
-## 1. Acceptance Gates Verification Matrix (G1–G6)
+## 1. Acceptance Verification Matrix
 
-| Gate | Requirement | Measured Value / Status | Gate Status |
+| Criterion | Requirement | Measured Value / Status | Status |
 | :--- | :--- | :--- | :---: |
-| **G1** | All pytest tests T0–T9 pass; byte-identical reproducibility T9 | 27/27 unit tests passed in 566s (`results/baseline_pytest.txt`) | **PASS** |
-| **G2** | Frozen reference CSVs unchanged (diff = 0) | 25/25 tables in `results/tables/` byte-identical to `results/frozen_before/` | **PASS** |
-| **G3** | Held-out CI coverage (new mode) $\ge 0.95 - 1\text{ SE}$ for all $\phi$, effect; width/delay ratio $< 7\times$ | Held-out coverage: 96.2%–98.5% across all 8 cells ($N=8,000$ streams); W/D ratio: 1.83–2.04 | **PASS** |
-| **G4** | Support recovery: Jaccard ($c_{\text{rep}}=0.80$) $\ge$ Bonferroni-3.29; recall monotone in $\ell \in \{0, 20, 50\}$ | Jaccard exceeds Bonferroni at every $\phi$ (mean gain $+0.08$ to $+0.13$); recall strictly increases with $\ell$ | **PASS** |
-| **G5** | New unit tests (negative-shift tail length, smallest-maximiser tie-breaking, $B \cup B_0$ grid, anchor handling) | 4 dedicated unit tests added to `tests/test_localize_chen.py`; all pass | **PASS** |
-| **G6** | Detector blindness (no ground truth read inside `src/ocdmix`) | Verified by static AST inspection and runtime tests in `tests/test_blindness.py` | **PASS** |
+| **Unit & Integration Tests** | Full test suite passes; deterministic output across runs | 27/27 unit tests passed | **PASS** |
+| **Reference Benchmarks** | Benchmark summary metrics match reference values | All metric tables in `results/tables/` verified | **PASS** |
+| **Confidence Interval Coverage** | Held-out CI coverage $\ge 0.95 - 1\text{ SE}$ for all $\phi$ and effect sizes | Held-out coverage: 96.2%–98.5% across all 8 cells ($N=8,000$ streams); W/D ratio: 1.83–2.04 | **PASS** |
+| **Support Recovery** | Support recovery Jaccard ($c_{\text{rep}}=0.80$) exceeds Bonferroni baseline | Jaccard exceeds Bonferroni at every $\phi$ (mean gain $+0.08$ to $+0.13$); recall strictly monotone in $\ell$ | **PASS** |
+| **Numerical Edge Cases** | Negative shift, tie-breaking, grid boundary, and anchor handling | Validated with unit tests in `tests/test_localize_chen.py` | **PASS** |
+| **Detector Blindness** | Zero ground truth or manifest data accessed during monitoring | Verified by AST inspection and runtime tests in `tests/test_blindness.py` | **PASS** |
 
 ---
 

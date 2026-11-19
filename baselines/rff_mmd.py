@@ -1,10 +1,3 @@
-"""Online Kernel and Random Fourier Feature (RFF) Change Detectors.
-
-Includes:
-  M6: StreamingRFFMMD (Kalinke & Gavioli-Akilagun, NeurIPS 2025)
-  M7: ScanBStatistic, OKCUSUM (Song Wei et al., 2022 / Kalinke & Gavioli-Akilagun 2025)
-      NEWMA (Keriven et al., 2020 standalone implementation)
-"""
 from __future__ import annotations
 
 import math
@@ -45,7 +38,7 @@ class Gauss:
 
 
 class StreamingRFFMMD:
-    """M6: Streaming RFF MMD Change Detector (Kalinke & Gavioli-Akilagun 2025)."""
+    """Streaming RFF MMD Change Detector (Kalinke & Gavioli-Akilagun 2025)."""
     
     class Window:
         def __init__(self, z: np.ndarray, c: int):
@@ -105,7 +98,7 @@ class StreamingRFFMMD:
 
 
 class ScanBStatistic:
-    """M7: Scan B-Statistic Change Detector (Li et al., 2019 / Kalinke & Gavioli-Akilagun 2025)."""
+    """Scan B-Statistic Change Detector (Li et al., 2019 / Kalinke & Gavioli-Akilagun 2025)."""
     
     def __init__(self, reference_sample: np.ndarray, B0: int = 50, N: int = 5, gamma: Optional[float] = None, seed: Optional[int] = 1234):
         self.rng = np.random.default_rng(seed)
@@ -189,7 +182,7 @@ class ScanBStatistic:
 
 
 class OKCUSUM:
-    """M7: Online Kernel CUSUM (Song Wei et al., 2022 / Kalinke & Gavioli-Akilagun 2025)."""
+    """Online Kernel CUSUM (Song Wei et al., 2022 / Kalinke & Gavioli-Akilagun 2025)."""
     
     def __init__(self, reference_sample: np.ndarray, B_max: int = 60, N: int = 5, gamma: Optional[float] = None, B_min: int = 2, seed: Optional[int] = 1234):
         self.rng = np.random.default_rng(seed)
@@ -232,7 +225,7 @@ class OKCUSUM:
 
 
 class NEWMA:
-    """M7: NEWMA Change Detector (Keriven et al., 2020 standalone implementation)."""
+    """NEWMA Change Detector (Keriven et al., 2020)."""
     
     def __init__(self, reference_sample: np.ndarray, d: int, B: int = 50, m_features: int = 100, seed: Optional[int] = 1234):
         self.B = B
@@ -265,4 +258,3 @@ class NEWMA:
         
     def statistic(self) -> float:
         return self.recent_stat
-

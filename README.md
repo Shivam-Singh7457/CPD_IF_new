@@ -1,123 +1,125 @@
-# OCD-Mix: Online Change-Point Detection for Dependent Time Series
+# OCD-Mix: Online Change-Point Detection for Temporally Dependent Multivariate Time Series
 
-OCD-Mix is an online, multi-chart change-point detector and inference framework for high-dimensional ($p$-dimensional) time series exhibiting temporal dependence ($\alpha$-mixing VAR(1) dynamics). It extends the online change-point detection (OCD) idea of Chen, Wang, and Samworth (2020) by standardising window sums with long-run variance (LRV) estimates and calibrating detection thresholds for dependent observations.
+This repository contains the reference implementation and experimental evaluation suite for **OCD-Mix**, a multi-chart online change-point detection and post-alarm inference framework for high-dimensional ($p$-variate) time series under temporal dependence ($\alpha$-mixing VAR dynamics).
+
+OCD-Mix extends the multi-chart sequential detection framework of Chen, Wang, and Samworth (2020, 2024) by:
+1. Standardising dyadic window cumulative sums with prewhitened long-run variance (LRV) estimators to prevent false alarm inflation under autocorrelation.
+2. Calibrating simultaneous detection thresholds $(\tau_A, \tau_Q)$ under dependent null distributions.
+3. Providing finite-sample confidence intervals for the change-point location and coordinate-level support recovery.
+4. Implementing a constant-time $O(p \cdot |K|)$ per update, constant-memory $O(p \cdot k_{\max})$ streaming detector (`OnlineDetector`) with periodic re-anchoring against floating-point drift.
 
 ---
 
-## 1. Repository Layout
+## Repository Structure
 
 ```
 .
-├── generate_synthetic_streams.py        # Original synthetic data generator (untouched)
-├── generate_synthetic_streams_fast.py   # Cholesky-accelerated fast generator
-├── pyproject.toml                       # Package configuration and pytest settings
-├── README.md                            # Complete execution instructions
+├── baselines/
+│   ├── cws_ocd.py                       # Chen, Wang & Samworth (2020, 2024 JASA) multi-chart & CI
+│   ├── mnsbs.py                         # Madrid Padilla et al. (NeurIPS 2023) seeded binary segmentation
+│   └── rff_mmd.py                       # Streaming RFF-MMD (NeurIPS 2025), OKCUSUM, and NEWMA
 ├── src/
 │   └── ocdmix/
-│       ├── __init__.py                  # Package init
-│       ├── io.py                        # Memory-mapped I/O (blind to ground truth)
-│       ├── fit.py                       # Training fit: mean, AR(1), LRV, s2 tables (E1-E6)
-│       ├── scan.py                      # Vectorised batch scan and alarm detection (E7-E9)
-│       ├── online.py                    # Constant-memory, constant-time OnlineDetector
-│       ├── calibrate.py                 # Threshold calibration and self-calibration (E10)
-│       ├── localize.py                  # Change-point estimation, CI, and support (E11-E14)
-│       └── metrics.py                   # Evaluation against evaluator-only ground truth
+│       ├── fit.py                       # Training estimators: mean, AR(1), long-run variance, finite-sample s2
+│       ├── scan.py                      # Vectorised multi-scale batch scan and alarm evaluation
+│       ├── online.py                    # Streaming OnlineDetector (ring buffer, constant memory)
+│       ├── calibrate.py                 # Null calibration and autonomous self-calibration
+│       ├── localize.py                  # Change-point estimation, confidence interval, and support recovery
+│       ├── metrics.py                   # Evaluation metrics (FAR, delay, CI coverage, Jaccard)
+│       └── io.py                        # Memory-mapped observation streaming and ground-truth loaders
 ├── scripts/
-│   ├── generate_all.py                  # Parallel synthetic dataset generator
-│   ├── run_calibration.py               # E10 threshold calibration CLI
-│   ├── calibrate_ci.py                  # E13 CI half-width multiplier calibration CLI
+│   ├── generate_all.py                  # Parallel synthetic stream generation
+│   ├── run_calibration.py               # Empirical threshold calibration CLI
+│   ├── calibrate_ci.py                  # CI half-width parameter calibration CLI
 │   ├── run_eval.py                      # Single dataset evaluation CLI
-│   ├── run_all_evals.py                 # Full 24-experiment evaluation runner
-│   ├── bench_online.py                  # Streaming throughput and memory benchmark
-│   ├── run_self_calibration.py          # Task 9 self-calibration comparison
-│   └── make_report.py                   # Tables and 300-dpi figures generator
+│   ├── run_all_evals.py                 # 24-experiment parallel benchmark runner
+│   ├── bench_online.py                  # Real-time throughput and memory scaling benchmark
+│   ├── run_self_calibration.py          # Stream-by-stream autonomous self-calibration
+│   ├── run_cws_benchmark.py             # CWS baseline benchmark runner
+│   ├── run_mp_benchmark.py              # MNSBS baseline benchmark runner
+│   ├── run_rff_benchmark.py             # Kernel / RFF baseline benchmark runner
+│   └── make_report.py                   # Generates publication figures and summary tables
 ├── tests/
-│   ├── test_fast_generator.py           # Task 0 verification
-│   ├── test_fit.py                      # T1: LRV accuracy across phi
-│   ├── test_scan.py                     # T2: standardisation variance; T3: window sums
-│   ├── test_online.py                   # T4: batch vs online equivalence; T5: constant memory
-│   ├── test_calibrate.py                # T6: reduction to independence (phi=0)
-│   ├── test_power.py                    # T7: power sanity under strong effect
-│   ├── test_blindness.py                # T8: detector blindness to ground truth / manifest
-│   └── test_reproducibility.py          # T9: byte-identical CSV outputs
-└── results/
-    ├── calib/                           # Calibrated threshold JSON files
-    ├── eval/                            # Per-stream evaluation CSVs and JSON summaries
-    ├── tables/                          # Summary metrics and benchmark CSV tables
-    ├── figures/                         # Publication-quality 300-dpi PNG plots
-    └── REPORT.md                        # Comprehensive research report
+│   ├── test_fast_generator.py           # Synthetic generator moments and spectral decay
+│   ├── test_fit.py                      # Long-run variance estimator consistency
+│   ├── test_scan.py                     # Multi-scale standardisation variance and window sum correctness
+│   ├── test_online.py                   # Equivalence of batch and streaming detectors; constant memory
+│   ├── test_calibrate.py                # Calibration reduction to independent limit (phi = 0)
+│   ├── test_power.py                    # Detection power and delay bounds under significant shift
+│   ├── test_blindness.py                # Asserts zero ground-truth leakage into detector modules
+│   ├── test_reproducibility.py          # Deterministic reproducibility of outputs
+│   └── test_localize_chen.py            # Localisation, scale-grid search, and confidence interval bounds
+├── results/
+│   ├── calib/                           # Calibrated threshold JSON files
+│   ├── eval/                            # Stream-level evaluation logs and summaries
+│   ├── tables/                          # Summary metrics and benchmark tables (CSV)
+│   ├── figures/                         # Publication-quality figures (300 DPI)
+│   ├── REPORT.md                        # Empirical results and experimental report
+│   └── FINAL_SUMMARY.md                 # Verification summary and baseline comparison
+├── generate_synthetic_streams_fast.py   # Cholesky-accelerated VAR(1) synthetic stream generator
+└── pyproject.toml                       # Package build definition and test configuration
 ```
 
 ---
 
-## 2. Installation and Setup
+## Installation
 
-Requires Python 3.10+, NumPy, SciPy, pandas, matplotlib, pytest.
+### Prerequisites
+- Python 3.10 or higher
+- Standard scientific stack: NumPy, SciPy, pandas, scikit-learn, matplotlib, pytest
 
+### Setup
 ```bash
-# Clone and enter directory
-cd /path/to/OCD_CI_extended
+# Clone the repository
+git clone https://github.com/anonymous/OCD-Mix.git
+cd OCD-Mix
 
-# Install dependencies and package in editable mode
+# Install package in editable mode
 pip install -e .
 ```
 
 ---
 
-## 3. Running Acceptance Tests
+## Test Suite
 
-Run the complete test suite (all tests T0–T9):
+Run the unit and validation tests:
 
 ```bash
 pytest -v
 ```
 
-To run individual test gates:
+To run targeted verification modules:
 
 ```bash
-# Task 0: Fast generator marginal and long-run variance checks
-pytest tests/test_fast_generator.py -v
+# Variance standardisation and LRV consistency
+pytest tests/test_fit.py tests/test_scan.py -v
 
-# T1: LRV estimation accuracy (<5% bias for prewhiten)
-pytest tests/test_fit.py -v
-
-# T2 & T3: Window sums and standardisation variance in [0.93, 1.10]
-pytest tests/test_scan.py -v
-
-# T4 & T5: Batch vs online equivalence and constant memory (<5% growth)
+# Streaming detector equivalence and memory footprint
 pytest tests/test_online.py -v
 
-# T6: Reduction to independence (proposed vs vanilla within 10% at phi=0)
-pytest tests/test_calibrate.py -v
+# Change-point localisation and CI coverage bounds
+pytest tests/test_localize_chen.py -v
 
-# T7: Power sanity (detection >= 99%, median delay < 60)
-pytest tests/test_power.py -v
-
-# T8: Detector blindness to ground truth / manifest files
-pytest tests/test_blindness.py -v
-
-# T9: Reproducibility (byte-identical CSV outputs)
-pytest tests/test_reproducibility.py -v
+# Evaluator blindness and evaluation reproducibility
+pytest tests/test_blindness.py tests/test_reproducibility.py -v
 ```
 
 ---
 
-## 4. End-to-End Experiment Pipeline
+## Experimental Pipeline
 
-### Step 1: Generate All Synthetic Datasets
-Generates all 17 datasets ($T=5000, p=50$) across $\phi \in \{0.0, 0.3, 0.6, 0.8\}$, null/changed conditions, and `cicalib` in parallel:
+### 1. Data Generation
+Generate synthetic benchmark datasets across dependence levels $\phi \in \{0.0, 0.3, 0.6, 0.8\}$, null and changed conditions ($p = 50, T = 5000$):
 
 ```bash
-python scripts/generate_all.py --workers 6
+python scripts/generate_all.py --workers 4
 ```
 
-*(For quick smoke-testing with 10 streams per scenario, add the `--smoke` flag).*
+*(Pass `--smoke` to generate a lightweight set for quick smoke-testing).*
 
----
+### 2. Threshold Calibration
 
-### Step 2: Calibrate Detection Thresholds
-
-#### A. Proposed Method (per $\phi$ from `calib_null_phi{tag}`):
+#### Proposed Dependent Multi-Chart Calibration
 ```bash
 python scripts/run_calibration.py --null-dir data/calib_null_phi00 --method proposed --out results/calib/proposed_phi00.json
 python scripts/run_calibration.py --null-dir data/calib_null_phi03 --method proposed --out results/calib/proposed_phi03.json
@@ -125,70 +127,58 @@ python scripts/run_calibration.py --null-dir data/calib_null_phi06 --method prop
 python scripts/run_calibration.py --null-dir data/calib_null_phi08 --method proposed --out results/calib/proposed_phi08.json
 ```
 
-#### B. Vanilla Baseline (calibrated ONLY on i.i.d. $\phi=0.0$ data):
+#### Vanilla Baseline Calibration (Independent Null)
 ```bash
 python scripts/run_calibration.py --null-dir data/calib_null_phi00 --method vanilla --out results/calib/vanilla_iid.json
 ```
 
----
-
-### Step 3: Calibrate Confidence Interval Multiplier $a$
-Calibrates parameter $a$ to achieve 95% empirical coverage on `cicalib`:
+### 3. Confidence Interval Calibration
+Calibrate the confidence interval half-width parameter on the calibration partition to achieve nominal 95% coverage:
 
 ```bash
 python scripts/calibrate_ci.py --dataset-dir data/cicalib --calib-json results/calib/proposed_phi06.json --out results/calib/ci_a.json
 ```
 
----
+### 4. Running Evaluations
 
-### Step 4: Run Evaluation Experiments
-Evaluates both proposed and vanilla detectors across all null and changed streams:
-
-```bash
-# Run all 24 evaluations in parallel
-python scripts/run_all_evals.py --workers 6
-```
-
-*(Alternatively, run individual evaluations via `python scripts/run_eval.py --dataset-dir data/<NAME> --calib-json results/calib/<CALIB>.json --ci-json results/calib/ci_a.json --out-csv results/eval/<OUT>.csv --out-json results/eval/<OUT>.json`).*
-
----
-
-### Step 5: Streaming Throughput and Constant Memory Benchmark
-Benchmarks `OnlineDetector` on dimensions $p \in \{50, 100, 200, 400\}$ over 200,000 steps:
+Run the full evaluation matrix (all $\phi$, null/changed regimes, vanilla vs proposed):
 
 ```bash
-python scripts/bench_online.py --steps 200000
+python scripts/run_all_evals.py --workers 4
 ```
 
----
+To evaluate baselines:
+```bash
+python scripts/run_cws_benchmark.py
+python scripts/run_mp_benchmark.py
+python scripts/run_rff_benchmark.py
+```
 
-### Step 6: Task 9 Self-Calibration Option
-Fits per-coordinate AR(1) coefficients and innovation covariance from training data, simulates 300 null streams, and compares calibrated thresholds with oracle thresholds:
+### 5. Autonomous Self-Calibration
+Run stream-by-stream self-calibration using only each stream's in-control training window $X[0:m_0]$:
 
 ```bash
 python scripts/run_self_calibration.py
 ```
 
----
+### 6. Streaming Performance Benchmark
+Measure execution throughput and verify flat memory scaling across dimensions $p \in \{50, 100, 200, 400\}$:
 
-### Step 7: Generate Report Figures and Tables
-Generates all 5 publication-ready 300-dpi figures and summary CSV tables:
+```bash
+python scripts/bench_online.py --steps 50000
+```
+
+### 7. Figures and Tables Generation
+Generate all summary CSV tables and publication figures (300 DPI):
 
 ```bash
 python scripts/make_report.py
 ```
 
-Outputs:
-- Figures (`results/figures/`):
-  1. `fig1_false_alarm_vs_phi.png`
-  2. `fig2_mean_delay_vs_phi.png`
-  3. `fig3_ci_coverage_vs_phi.png`
-  4. `fig4_support_jaccard_vs_phi.png`
-  5. `fig5_memory_vs_stream_length.png`
-- Tables (`results/tables/`):
-  - `null_metrics.csv`
-  - `change_metrics.csv`
-  - `all_eval_summaries.csv`
-  - `benchmark_online.csv`
-  - `self_calibration_comparison.csv`
-- Full text report: `results/REPORT.md`
+Generated outputs include:
+- `results/figures/fig1_false_alarm_vs_phi.png`: Empirical false-alarm rate versus $\phi$
+- `results/figures/fig2_mean_delay_vs_phi.png`: Detection delay across effect sizes
+- `results/figures/fig3_ci_coverage_vs_phi.png`: 95% Confidence interval coverage
+- `results/figures/fig4_support_jaccard_vs_phi.png`: Support recovery accuracy
+- `results/figures/fig5_memory_vs_stream_length.png`: Streaming memory footprint scaling
+- `results/tables/null_metrics.csv` & `results/tables/change_metrics.csv`: Tabulated evaluation metrics

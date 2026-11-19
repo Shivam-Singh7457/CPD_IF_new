@@ -22,27 +22,21 @@ def eval_single_stream(args: tuple) -> dict:
     T = X_stream.shape[0]
     T_mon = T - m0
 
-    # 1. Fit training model on stream's own training segment
     X_train = np.asarray(X_stream[:m0], dtype=np.float64)
     fit = fit_training(X_train, m0=m0, window_grid=window_grid, kmax=kmax)
 
-    # 2. Compute stream's own monitoring statistics
     A, Q, _ = compute_statistics_vectorised(X_stream, fit)
     M_A = float(np.nanmax(A) / base_A)
     M_Q = float(np.nanmax(Q))
 
-    # (a) Oracle alarm check
     oracle_alarm = bool((M_A > oracle_cA) or (M_Q > oracle_cQ))
 
-    # (b) Self-calibration: simulate n_sim paths from fitted model
-    # Model parameters
     Xc = X_train - fit.mu
     r = fit.r.astype(np.float32)
     e = (Xc[1:] - fit.r[np.newaxis, :] * Xc[:-1]).astype(np.float32)
     e_c = e - e.mean(axis=0)
     sigma_eps = (e_c.T @ e_c) / e_c.shape[0]
     sigma_eps = 0.5 * (sigma_eps + sigma_eps.T)
-    # Ensure positive definiteness
     min_eig = float(np.linalg.eigvalsh(sigma_eps).min())
     if min_eig <= 1e-6:
         sigma_eps += (1e-5 - min_eig) * np.eye(p, dtype=np.float32)

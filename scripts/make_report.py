@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Generate figures, summary tables, and the final results report from evaluation outputs."""
 from __future__ import annotations
 
 import argparse
@@ -34,7 +33,6 @@ def set_matplotlib_style() -> None:
 
 
 def load_eval_results(eval_dir: Path) -> list[dict]:
-    """Load all JSON summaries from eval_dir."""
     files = sorted(eval_dir.glob("*.json"))
     records = []
     for f in files:
@@ -52,7 +50,6 @@ def make_figures_and_tables(
     figures_dir: Path,
     alpha0: float = 0.05,
 ) -> pd.DataFrame:
-    """Generate all 5 required figures and summary tables."""
     tables_dir.mkdir(parents=True, exist_ok=True)
     figures_dir.mkdir(parents=True, exist_ok=True)
 
@@ -63,7 +60,6 @@ def make_figures_and_tables(
 
     df = pd.DataFrame(records)
 
-    # Parse dataset properties: phi and effect
     # Names: null_phi{00,03,06,08}, change_phi{00,03,06,08}_e{10,15}
     def parse_phi(row: pd.Series) -> float:
         ds = row["dataset"]
@@ -83,7 +79,6 @@ def make_figures_and_tables(
     df["phi"] = df.apply(parse_phi, axis=1)
     df["effect"] = df.apply(parse_effect, axis=1)
 
-    # Save summary tables
     df.to_csv(tables_dir / "all_eval_summaries.csv", index=False)
 
     null_df = df[df["effect"] == "none"].sort_values(["phi", "method"])
@@ -108,9 +103,7 @@ def make_figures_and_tables(
 
     set_matplotlib_style()
 
-    # -------------------------------------------------------------
-    # Figure 1: False-alarm probability vs phi (vanilla vs proposed)
-    # -------------------------------------------------------------
+    # fig1
     fig, ax = plt.subplots(figsize=(6.5, 4.5), dpi=300)
     for method, col, marker in [("proposed", "#1f77b4", "o"), ("vanilla", "#d62728", "s")]:
         sub = null_df[null_df["method"] == method].sort_values("phi")
@@ -131,10 +124,7 @@ def make_figures_and_tables(
     fig.savefig(figures_dir / "fig1_false_alarm_vs_phi.png")
     plt.close(fig)
 
-    # -------------------------------------------------------------
-    # Figure 2: Mean delay vs phi for each effect, vanilla vs proposed
-    # (Caption note: only where false-alarm rates are comparable; drop empty vanilla entries)
-    # -------------------------------------------------------------
+    # fig2
     fig, ax = plt.subplots(figsize=(7, 4.8), dpi=300)
     colors = {"1.0": "#1f77b4", "1.5": "#2ca02c"}
     styles = {"proposed": "-", "vanilla": "--"}
@@ -177,14 +167,11 @@ def make_figures_and_tables(
     fig.savefig(figures_dir / "fig2_mean_delay_vs_phi.png", bbox_inches="tight")
     plt.close(fig)
 
-    # -------------------------------------------------------------
-    # Figure 3: CI coverage vs phi (y-axis in %, 95% ref line, New vs Legacy)
-    # -------------------------------------------------------------
+    # fig3
     fig, ax = plt.subplots(figsize=(6.8, 4.8), dpi=300)
     taskC_csv = PROJECT_ROOT / "results" / "fix" / "taskC_eval_coverage.csv"
     leg_csv = tables_dir / "ci_coverage_eval.csv"
 
-    # Held-out New Mode data
     if taskC_csv.exists():
         c_df = pd.read_csv(taskC_csv)
         c_df0 = c_df[c_df["extra_obs"] == 0].sort_values("phi")
@@ -219,9 +206,7 @@ def make_figures_and_tables(
     fig.savefig(figures_dir / "fig3_ci_coverage_vs_phi.png", bbox_inches="tight")
     plt.close(fig)
 
-    # -------------------------------------------------------------
-    # Figure 4: Support Jaccard vs phi: Default z0=3.2905 vs Tuned z*=2.7100
-    # -------------------------------------------------------------
+    # fig4
     fig, ax = plt.subplots(figsize=(6.8, 4.8), dpi=300)
     supp_csv = tables_dir / "support_recovery_eval.csv"
     if supp_csv.exists():
@@ -248,9 +233,7 @@ def make_figures_and_tables(
         fig.savefig(figures_dir / "fig4_support_jaccard_vs_phi.png", bbox_inches="tight")
         plt.close(fig)
 
-    # -------------------------------------------------------------
-    # Figure 5: Two-panel memory benchmark (Footprint vs p; Live memory vs steps)
-    # -------------------------------------------------------------
+    # fig5
     mem_csv = tables_dir / "benchmark_memory.csv"
     if not mem_csv.exists() and bench_csv.exists():
         mem_csv = bench_csv

@@ -1,4 +1,3 @@
-"""Training-stage fitting: estimate mu, AR(1), long-run variance, normalisation (E1-E6)."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -19,38 +18,27 @@ class FitResult:
     """All quantities estimated from the training window X[0:m0]."""
     m0: int
     p: int
-    mu: np.ndarray                        # (p,)
-    g0: np.ndarray                        # (p,)  marginal variance
-    r: np.ndarray                         # (p,)  clipped AR(1) coefficients
-    sigma2: np.ndarray                    # (p,)  long-run variance
-    s2_grid: dict[int, np.ndarray]        # k -> (p,)  normalisation for grid windows
-    s2_table: np.ndarray                  # (2*kmax+1, p)  s2 for m=0..2*kmax
+    mu: np.ndarray
+    g0: np.ndarray
+    r: np.ndarray
+    sigma2: np.ndarray
+    s2_grid: dict[int, np.ndarray]
+    s2_table: np.ndarray
     window_grid: tuple[int, ...]
     kmax: int
-    method: str                           # "proposed" or "vanilla"
-    lrv_method: str                       # "prewhiten" or "bartlett"
+    method: str
+    lrv_method: str
 
     # Additional diagnostic quantities
-    omega: np.ndarray = field(default_factory=lambda: np.empty(0))  # (p,) innovation LRV
+    omega: np.ndarray = field(default_factory=lambda: np.empty(0))
 
 
 def _bartlett_weight(h: int, L: int) -> float:
-    """Bartlett kernel weight: 1 - h / (L + 1)."""
     return 1.0 - h / (L + 1)
 
 
 def _autocovariance(x: np.ndarray, max_lag: int) -> np.ndarray:
-    """Compute autocovariances gamma(0..max_lag) for each column of x.
-
-    Parameters
-    ----------
-    x : (n, p)  centred data
-    max_lag : int
-
-    Returns
-    -------
-    gam : (max_lag+1, p)
-    """
+    """Autocovariances gamma(0..max_lag) for each column of x."""
     n, p = x.shape
     gam = np.empty((max_lag + 1, p), dtype=np.float64)
     for h in range(max_lag + 1):
@@ -68,40 +56,20 @@ def fit_training(
     method: Literal["proposed", "vanilla"] = "proposed",
     lrv_method: Literal["prewhiten", "bartlett"] = "prewhiten",
 ) -> FitResult:
-    """Estimate all training-stage quantities from X[0:m0].
-
-    Parameters
-    ----------
-    X_train : ndarray, shape (m0, p)
-        Training observations (first m0 rows of one stream).
-    m0 : int
-        Training length (must equal X_train.shape[0]).
-    method : {"proposed", "vanilla"}
-        "proposed" uses long-run variance normalisation;
-        "vanilla" uses only the marginal variance.
-    lrv_method : {"prewhiten", "bartlett"}
-        How to estimate the long-run variance in the "proposed" method.
-
-    Returns
-    -------
-    FitResult
-    """
+    """Estimate all training-stage quantities from X[0:m0]."""
     X_train = np.asarray(X_train, dtype=np.float64)
     if X_train.shape[0] != m0:
         raise ValueError(f"X_train has {X_train.shape[0]} rows but m0={m0}")
     p = X_train.shape[1]
 
-    # E1: mean and centred data
-    mu = X_train.mean(axis=0)  # (p,)
-    Xc = X_train - mu          # (m0, p)
+    mu = X_train.mean(axis=0)
+    Xc = X_train - mu
 
-    # E2: marginal variance g0, AR(1) coefficient r
-    g0 = np.mean(Xc ** 2, axis=0)  # (p,)
-    # r_j = sum_{t>=1} Xc[t-1]*Xc[t] / sum_{t>=1} Xc[t-1]^2
+    g0 = np.mean(Xc ** 2, axis=0)
     num = np.sum(Xc[:-1] * Xc[1:], axis=0)
     den = np.sum(Xc[:-1] ** 2, axis=0)
     r_raw = np.where(den > 0, num / den, 0.0)
-    r = np.clip(r_raw, -0.95, 0.95)  # (p,)
+    r = np.clip(r_raw, -0.95, 0.95)
 
     if method == "vanilla":
         sigma2 = g0.copy()
@@ -135,22 +103,17 @@ def fit_training(
 def _prewhiten_lrv(
     Xc: np.ndarray, r: np.ndarray, g0: np.ndarray, m0: int, Le: int,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """E3: prewhiten, then estimate innovation long-run variance, then E4."""
-    # E3: residuals e[t,j] = Xc[t,j] - r_j * Xc[t-1,j]  for t=1..m0-1
-    e = Xc[1:] - r[np.newaxis, :] * Xc[:-1]  # (m0-1, p)
-    e = e - e.mean(axis=0)  # subtract column mean
+    """Prewhiten-then-HAC estimate of the long-run variance."""
+    e = Xc[1:] - r[np.newaxis, :] * Xc[:-1]
+    e = e - e.mean(axis=0)
 
-    n_e = e.shape[0]
-    # Autocovariances of e
-    gam_e = _autocovariance(e, Le)  # (Le+1, p)
+    gam_e = _autocovariance(e, Le)
 
-    # omega_j = gam_e(0) + 2*sum_{h=1..Le} (1-h/(Le+1))*gam_e(h)
     omega = gam_e[0].copy()
     for h in range(1, Le + 1):
         omega += 2.0 * _bartlett_weight(h, Le) * gam_e[h]
-    omega = np.maximum(omega, 1e-8)  # floor
+    omega = np.maximum(omega, 1e-8)
 
-    # E4: sigma2_j = omega_j / (1 - r_j)^2
     sigma2 = omega / (1.0 - r) ** 2
 
     return sigma2, omega
@@ -160,7 +123,7 @@ def _bartlett_lrv(
     Xc: np.ndarray, g0: np.ndarray, m0: int, L: int = 20,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Bartlett-kernel LRV estimate directly from centred data."""
-    gam = _autocovariance(Xc, L)  # (L+1, p)
+    gam = _autocovariance(Xc, L)
 
     sigma2 = gam[0].copy()
     for h in range(1, L + 1):
@@ -180,7 +143,7 @@ def _proposed_normalisation(
     lrv_method: str,
     Xc: np.ndarray,
 ) -> tuple[dict[int, np.ndarray], np.ndarray]:
-    """E5-E6 normalisation for the proposed method."""
+    """Normalisation constants for the proposed method."""
     p = sigma2.shape[0]
     max_m = 2 * kmax
     s2_table = np.empty((max_m + 1, p), dtype=np.float64)
@@ -188,24 +151,20 @@ def _proposed_normalisation(
 
     if lrv_method == "prewhiten":
         for m in range(1, max_m + 1):
-            # E5: v[k,j] = sigma2_j - 2*g0_j*r_j*(1 - r_j^k) / (k*(1-r_j)^2)
             rk = r ** m
             v = sigma2 - 2.0 * g0 * r * (1.0 - rk) / (m * (1.0 - r) ** 2)
-            v = np.maximum(v, 0.2 * g0)  # floor
-            # E6: s2[k,j] = k*v[k,j] + k^2*sigma2_j/m0
+            v = np.maximum(v, 0.2 * g0)
             s2_table[m] = m * v + (m ** 2) * sigma2 / m0
     else:
         # Bartlett ablation
         L = 20
-        gam = _autocovariance(Xc, L)  # (L+1, p)
+        gam = _autocovariance(Xc, L)
         for m in range(1, max_m + 1):
-            # v[k,j] = g0 + 2*sum_{h=1..min(L,k-1)} (1-h/(L+1))*(1-h/k)*gam(h)
             v = gam[0].copy()
             H = min(L, m - 1)
             for h in range(1, H + 1):
                 v += 2.0 * _bartlett_weight(h, L) * (1.0 - h / m) * gam[h]
             v = np.maximum(v, 0.2 * g0)
-            # E6
             s2_table[m] = m * v + (m ** 2) * sigma2 / m0
 
     s2_grid: dict[int, np.ndarray] = {}

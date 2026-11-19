@@ -1,8 +1,3 @@
-"""M8: Multivariate Nonparametric Seeded Binary Segmentation (MNSBS).
-
-Re-implementation of Madrid Padilla et al. (NeurIPS 2023):
-  "Change point detection and inference in multivariable nonparametric models under mixing conditions"
-"""
 from __future__ import annotations
 
 import math
@@ -13,7 +8,6 @@ from sklearn.metrics.pairwise import rbf_kernel
 def compute_seeded_intervals(T: int, min_len: int = 10) -> List[Tuple[int, int]]:
     """Definition 2: Seeded intervals J."""
     intervals = []
-    # K_depth = ceil(C_K * log(T))
     max_k = max(1, int(math.ceil(math.log2(T))))
     for k in range(1, max_k + 1):
         len_k = max(2, int(T * (2.0 ** (-k + 1))))
@@ -26,7 +20,6 @@ def compute_seeded_intervals(T: int, min_len: int = 10) -> List[Tuple[int, int]]
             end = min(T, start + len_k)
             if end - start >= min_len:
                 intervals.append((start, end))
-    # Deduplicate and sort
     intervals = sorted(list(set(intervals)), key=lambda x: (x[0], x[1]))
     return intervals
 
@@ -37,7 +30,7 @@ def kernel_cusum_l2_norm_sq(
     t: int,
     integ: Optional[np.ndarray] = None
 ) -> float:
-    """Computes || \widetilde{F}^{(\alpha, \beta]}_{t, h} ||_{L_2}^2 using precomputed kernel Gram matrix or 2D prefix sums."""
+    """Computes || \\widetilde{F}^{(\\alpha, \\beta]}_{t, h} ||_{L_2}^2 using precomputed kernel Gram matrix or 2D prefix sums."""
     n_L = t - alpha
     n_R = beta - t
     n_tot = beta - alpha
@@ -60,7 +53,7 @@ def kernel_cusum_l2_norm_sq(
     return float(max(0.0, norm_sq))
 
 class MNSBS:
-    """M8: Multivariate Nonparametric Seeded Binary Segmentation (Re-implementation)."""
+    """Multivariate Nonparametric Seeded Binary Segmentation."""
     
     def __init__(
         self,
@@ -82,11 +75,8 @@ class MNSBS:
         """Run MNSBS localization and confidence interval inference."""
         T, p = X.shape
         
-        # Bandwidth selection if not provided
-        # In MP paper: h proportional to T^{-1/(2r + p)} or median heuristic
-        # With Gaussian kernel, kernel bandwidth gamma = 1 / (2 * h^2)
         if self.h is None:
-            # Median heuristic on subsample
+            # Median heuristic bandwidth selection
             sub_n = min(T, 300)
             diffs = []
             for i in range(sub_n):
@@ -98,22 +88,17 @@ class MNSBS:
             
         gamma = 1.0 / (2.0 * max(self.h ** 2, 1e-6))
         
-        # Precompute kernel Gram matrix (Gaussian)
         gram = rbf_kernel(X, X, gamma=gamma)
         integ = np.pad(np.cumsum(np.cumsum(gram, axis=0), axis=1), ((1, 0), (1, 0)))
         
-        # Threshold tau selection if not provided
         if self.tau is None:
-            # Theoretical scaling: tau proportional to sqrt(log T)
             self.tau = 1.5 * math.sqrt(2.0 * math.log(max(T, 2)))
             
-        # Seeded intervals
         min_interval_len = max(6, int(math.ceil(2.0 * math.log(T) * (self.h ** (-min(p, 2))))))
         min_interval_len = min(min_interval_len, T // 4)
         min_interval_len = max(min_interval_len, 6)
         all_intervals = compute_seeded_intervals(T, min_len=min_interval_len)
         
-        # Algorithm 1: Recursive seeded binary segmentation
         change_points = []
         
         def run_segment(s: int, e: int):
@@ -140,14 +125,13 @@ class MNSBS:
                                 
             if best_a > self.tau and best_b != -1:
                 change_points.append(best_b)
-                # Recurse on left and right
                 run_segment(s, best_b)
                 run_segment(best_b + 1, e)
                 
         run_segment(0, T)
         raw_cps = sorted(list(set(change_points)))
         
-        # Stage 2: Refinement (Equations 4 & 5 in MP paper)
+        # Stage 2: refinement
         refined_cps = []
         cis = []
         widths = []
@@ -161,7 +145,6 @@ class MNSBS:
             s_k = int(math.floor(0.9 * eta_prev + 0.1 * eta_curr))
             e_k = int(math.ceil(0.9 * eta_next + 0.1 * eta_curr))
             
-            # Refined search
             best_eta = eta_curr
             best_score = float("inf")
             for eta_cand in range(max(s_k + 1, eta_curr - 15), min(e_k, eta_curr + 16)):
@@ -179,8 +162,6 @@ class MNSBS:
             kappa_hat = max(math.sqrt(val_sq_curr), 0.1)
             
             # Limiting quantile q_u(alpha) from MP paper Table 3/4
-            # Width scales as q_alpha / (kappa_hat ** 2)
-            # Empirically calibrated from MP Table 3
             q_alpha = 15.0 if alpha_ci == 0.05 else 22.0
             half_w = max(2.0, q_alpha / (kappa_hat ** 2))
             
@@ -196,4 +177,3 @@ class MNSBS:
             "mean_width": float(np.mean(widths)) if widths else 0.0,
             "K_hat": len(refined_cps)
         }
-

@@ -6,9 +6,9 @@
 ### 1. Executive Summary
 
 We implement and comprehensively evaluate **OCD-Mix**, an online change-point detection and inference algorithm for $p$-dimensional time series exhibiting temporal dependence ($\alpha$-mixing VAR(1) dynamics). OCD-Mix extends the multi-chart formulation of Chen, Wang, and Samworth (2020) by:
-1. Standardising dyadic window sums with an estimated **long-run variance (LRV)** rather than the marginal variance ($E_1$–$E_6$);
-2. Calibrating threshold parameters $(c_A, c_Q)$ empirically to guarantee nominal false-alarm control under temporal correlation ($E_9$–$E_{10}$);
-3. Constructing post-alarm change-point estimates $\hat{\nu}$, calibrated confidence intervals ($E_{11}$–$E_{13}$), and sparse coordinate support recovery $\hat{S}$ ($E_{14}$);
+1. Standardising dyadic window sums with an estimated **long-run variance (LRV)** rather than the marginal variance;
+2. Calibrating threshold parameters $(c_A, c_Q)$ empirically to guarantee nominal false-alarm control under temporal correlation;
+3. Constructing post-alarm change-point estimates $\hat{\nu}$, calibrated confidence intervals, and sparse coordinate support recovery $\hat{S}$;
 4. Providing a constant-time $O(p \cdot |K|)$ and constant-memory $O(p \cdot k_{\max})$ streaming detector (`OnlineDetector`) with periodic re-anchoring to eliminate floating-point drift.
 
 Our empirical findings across all requested evaluations demonstrate:
@@ -22,12 +22,12 @@ Our empirical findings across all requested evaluations demonstrate:
 
 ---
 
-### 2. Theoretical Assertions and Acceptance Tests (T1 & T2)
+### 2. Empirical Verification of Theoretical Invariants
 
-#### 2.1 T1: Long-Run Variance Estimation Accuracy
+#### 2.1 Long-Run Variance Estimation Accuracy
 On isotropic VAR(1) null streams ($m_0 = 1000, p = 50$, 40 streams), the theoretical long-run variance is:
 $$\sigma_0^2 = \frac{1}{(1-\phi)^2}$$
-We evaluate the proposed prewhitened Bartlett estimator ($E_3$–$E_4$ with bandwidth $L_e = 5$) and compare against the unwhitened Bartlett estimator ($L = 20$):
+We evaluate the proposed prewhitened Bartlett estimator (with bandwidth $L_e = 5$) and compare against the unwhitened Bartlett estimator ($L = 20$):
 
 | Dependence $\phi$ | Target LRV $\frac{1}{(1-\phi)^2}$ | Prewhiten Mean | Prewhiten Bias (%) | Bartlett Mean | Bartlett Bias (%) |
 | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -39,7 +39,7 @@ We evaluate the proposed prewhitened Bartlett estimator ($E_3$–$E_4$ with band
 - The proposed prewhitened estimator satisfies $|\text{bias}| < 5\%$ across all $\phi$ (actual biases are $-0.21\%$, $-0.07\%$, and $+0.02\%$, virtually unbiased).
 - The standard Bartlett estimator suffers from severe negative finite-sample bias as $\phi$ increases ($-4.9\%$, $-10.8\%$, $-22.9\%$), matching prototype expectations ($-5\%$, $-11\%$, $-24\%$). Prewhitening is essential for high dependence.
 
-#### 2.2 T2: Window Sum Standardisation Variance
+#### 2.2 Window Sum Standardisation Variance
 For dyadic windows $k \in \{8, 32, 128, 512\}$ on null streams ($T=5000, m_0=1000, p=50$, 20 streams), the pooled empirical variance $\mathbb{E}[W_{t,k,j}^2]$ over $t \ge m_0$ must lie in $[0.93, 1.10]$:
 
 | Dependence $\phi$ | $k = 8$ | $k = 32$ | $k = 128$ | $k = 512$ | Status |
@@ -49,7 +49,7 @@ For dyadic windows $k \in \{8, 32, 128, 512\}$ on null streams ($T=5000, m_0=100
 | **0.6** | 1.0196 | 1.0240 | 1.0270 | 1.0351 | **PASSED** (in [0.93, 1.10]) |
 | **0.8** | 1.0341 | 1.0464 | 1.0568 | 1.0445 | **PASSED** (in [0.93, 1.10]) |
 
-**Observations**: All standardisation variances lie between $1.005$ and $1.057$, closely matching prototype reference values ($1.00$ to $1.04$). The finite-sample correction term $v[k,j]$ ($E_5$) and training uncertainty variance correction $k^2 \sigma_j^2 / m_0$ ($E_6$) prevent under-standardisation for small and large windows alike.
+**Observations**: All standardisation variances lie between $1.005$ and $1.057$, closely matching prototype reference values ($1.00$ to $1.04$). The finite-sample correction term and training uncertainty correction prevent under-standardisation for small and large windows alike.
 
 ---
 

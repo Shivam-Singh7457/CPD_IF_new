@@ -1,39 +1,5 @@
 #!/usr/bin/env python3
-"""Reproducible synthetic multivariate time-series generator for online CPD.
-
-FAST VERSION — identical CLI, file formats and ground-truth fields.
-Only generate_one_stream is changed: Cholesky-factored innovations
-and bulk standard-normal draws replace per-step multivariate_normal calls.
-
-Model
------
-    Z_t = A Z_{t-1} + eps_t,     eps_t ~ N(0, Sigma_eps,r)
-    X_t = mu_t + Z_t
-
-The regime r changes at a known-to-the-evaluator index b, but b and the
-affected coordinates are written to a separate ground-truth file and are not
-stored in observations.npy.
-
-For the isotropic VAR(1) baseline A = phi * I. For the dense robustness model,
-A is a random dense matrix scaled so ||A||_2 = phi < 1. Thus the state dynamics
-are contractive and, under the usual nonsingular Gaussian-innovation
-conditions, the process has geometric alpha-mixing. The parameter phi is the
-base of a conservative geometric decay envelope (alpha(k) <= C * phi**k); it
-is not claimed to equal the exact alpha-mixing coefficient.
-
-Dependencies: numpy, scipy
-    python -m pip install numpy scipy
-
-Example
--------
-python generate_synthetic_streams_fast.py \
-  --outdir data/mean_phi06 --T 5000 --p 50 --n-streams 100 \
-  --phi 0.6 --var-structure isotropic --change-type mean \
-  --cp-fraction 0.5 --sparsity 0.1 --effect 0.5 --seed 20261014
-
-Use --change-type none to create null streams for false-alarm / ARL evaluation.
-Use --change-type covariance for an innovation-covariance change.
-"""
+"""Synthetic multivariate time-series generator for online CPD."""
 
 from __future__ import annotations
 
@@ -146,14 +112,7 @@ def generate_one_stream(
     fixed_support: list[int] | None = None,
     sign_mode: str = "random",
 ) -> tuple[np.ndarray, dict[str, Any]]:
-    """Generate one stream plus evaluator-only ground truth (FAST version).
-
-    Uses Cholesky factorisation and bulk standard-normal draws instead of
-    per-step multivariate_normal calls.
-
-    Index convention: b is zero-based and X[b] is the first post-change
-    observation.
-    """
+    """Generate one stream with change-point and ground truth."""
     if T < 2:
         raise ValueError("T must be >= 2")
     if p < 1:
@@ -213,8 +172,6 @@ def generate_one_stream(
             sigma_pre, support, covariance_multiplier
         )
 
-    # --- FAST PATH: Cholesky + bulk draws ---
-    # Precompute Cholesky factors
     chol_gamma_pre = np.linalg.cholesky(gamma_pre)
     chol_sigma_pre = np.linalg.cholesky(sigma_pre)
 

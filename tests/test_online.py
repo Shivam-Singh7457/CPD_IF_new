@@ -1,10 +1,4 @@
-"""Tests for OnlineDetector (T4 and T5).
-
-T4 Batch vs online: for 5 streams the OnlineDetector alarm time, tail length and nu_hat
-    equal the batch scan results, and the standardised statistics agree to relative tolerance 1e-9.
-T5 Constant memory: tracemalloc peak of OnlineDetector after 20,000 and after 200,000 updates
-    differs by <5%.
-"""
+"""Tests for OnlineDetector equivalence and memory efficiency."""
 from __future__ import annotations
 
 import gc

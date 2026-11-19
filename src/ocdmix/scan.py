@@ -1,4 +1,3 @@
-"""Vectorised batch scan of one stream (E7-E9)."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -11,82 +10,16 @@ from .fit import FitResult
 
 @dataclass
 class AlarmResult:
-    """Result of a batch scan alarm detection."""
-    N: int                  # alarm time (zero-based index)
-    t_N: int                # largest violating window length at alarm time
-    nu_dyadic: int          # N - t_N + 1
+    N: int
+    t_N: int
+    nu_dyadic: int
 
 
 def compute_statistics(
     X: np.ndarray,
     fit: FitResult,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Compute monitoring statistics A[t,k] and Q[t,k] for one stream.
-
-    Parameters
-    ----------
-    X : (T, p) full stream
-    fit : FitResult from training
-
-    Returns
-    -------
-    A : (T, len(K)) – max statistic; NaN where window invalid
-    Q : (T, len(K)) – quadratic statistic; NaN where window invalid
-    W_all : (T, len(K), p) – standardised window sums; NaN where invalid
-    """
-    X = np.asarray(X, dtype=np.float64)
-    T, p = X.shape
-    m0 = fit.m0
-    K = fit.window_grid
-
-    # Centre data using training mean
-    Xc = X - fit.mu  # (T, p)
-
-    # E7: cumulative sums C[t] = sum_{u=m0..t} Xc[u]
-    # We build C starting from index m0, so C_raw[i] = sum_{u=m0..m0+i-1} Xc[u]
-    # C_raw[0] = 0 (before any monitoring obs)
-    # C_raw[t - m0 + 1] = sum_{u=m0..t} Xc[u]  for t >= m0
-    monitoring = Xc[m0:]  # (T - m0, p)
-    n_mon = monitoring.shape[0]
-    C_raw = np.zeros((n_mon + 1, p), dtype=np.float64)
-    np.cumsum(monitoring, axis=0, out=C_raw[1:])
-
-    n_k = len(K)
-    A = np.full((T, n_k), np.nan, dtype=np.float64)
-    Q = np.full((T, n_k), np.nan, dtype=np.float64)
-    W_all = np.full((T, n_k, p), np.nan, dtype=np.float64)
-
-    for ki, k in enumerate(K):
-        s2k = fit.s2_grid[k]  # (p,)
-        sqrt_s2k = np.sqrt(s2k)  # (p,)
-
-        # Valid range: t >= m0, t - k + 1 >= m0  =>  t >= m0 + k - 1
-        t_start = m0 + k - 1
-        if t_start >= T:
-            continue
-
-        # For t in [t_start, T-1]:
-        # index into C_raw: C[t] = C_raw[t - m0 + 1], C[t-k] = C_raw[t - k - m0 + 1]
-        for t in range(t_start, T):
-            ci_t = t - m0 + 1
-            ci_tk = t - k - m0 + 1
-            window_sum = C_raw[ci_t] - C_raw[ci_tk]  # (p,)
-            W = window_sum / sqrt_s2k  # (p,)
-            W_all[t, ki] = W
-            A[t, ki] = np.max(np.abs(W))
-            Q[t, ki] = (np.sum(W ** 2) - p) / np.sqrt(2.0 * p)
-
-    return A, Q, W_all
-
-
-def compute_statistics_vectorised(
-    X: np.ndarray,
-    fit: FitResult,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Fully vectorised version of compute_statistics (much faster).
-
-    Returns same shapes as compute_statistics.
-    """
+    """Compute monitoring statistics A[t,k] and Q[t,k] for one stream."""
     X = np.asarray(X, dtype=np.float64)
     T, p = X.shape
     m0 = fit.m0
@@ -111,15 +44,53 @@ def compute_statistics_vectorised(
         if t_start >= T:
             continue
 
-        # Vectorised: all valid t at once
-        # t ranges from t_start to T-1
-        # C[t] = C_raw[t - m0 + 1], C[t-k] = C_raw[t - k - m0 + 1]
-        t_indices = np.arange(t_start, T)
-        ci_t = t_indices - m0 + 1     # indices into C_raw for C[t]
-        ci_tk = t_indices - k - m0 + 1  # indices into C_raw for C[t-k]
+        for t in range(t_start, T):
+            ci_t = t - m0 + 1
+            ci_tk = t - k - m0 + 1
+            window_sum = C_raw[ci_t] - C_raw[ci_tk]
+            W = window_sum / sqrt_s2k
+            W_all[t, ki] = W
+            A[t, ki] = np.max(np.abs(W))
+            Q[t, ki] = (np.sum(W ** 2) - p) / np.sqrt(2.0 * p)
 
-        window_sums = C_raw[ci_t] - C_raw[ci_tk]  # (n_valid, p)
-        W = window_sums / sqrt_s2k[np.newaxis, :]  # (n_valid, p)
+    return A, Q, W_all
+
+
+def compute_statistics_vectorised(
+    X: np.ndarray,
+    fit: FitResult,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Fully vectorised version of compute_statistics (much faster)."""
+    X = np.asarray(X, dtype=np.float64)
+    T, p = X.shape
+    m0 = fit.m0
+    K = fit.window_grid
+
+    Xc = X - fit.mu
+    monitoring = Xc[m0:]
+    n_mon = monitoring.shape[0]
+    C_raw = np.zeros((n_mon + 1, p), dtype=np.float64)
+    np.cumsum(monitoring, axis=0, out=C_raw[1:])
+
+    n_k = len(K)
+    A = np.full((T, n_k), np.nan, dtype=np.float64)
+    Q = np.full((T, n_k), np.nan, dtype=np.float64)
+    W_all = np.full((T, n_k, p), np.nan, dtype=np.float64)
+
+    for ki, k in enumerate(K):
+        s2k = fit.s2_grid[k]
+        sqrt_s2k = np.sqrt(s2k)
+
+        t_start = m0 + k - 1
+        if t_start >= T:
+            continue
+
+        t_indices = np.arange(t_start, T)
+        ci_t = t_indices - m0 + 1
+        ci_tk = t_indices - k - m0 + 1
+
+        window_sums = C_raw[ci_t] - C_raw[ci_tk]
+        W = window_sums / sqrt_s2k[np.newaxis, :]
 
         W_all[t_indices, ki, :] = W
         A[t_indices, ki] = np.max(np.abs(W), axis=1)
@@ -136,21 +107,7 @@ def detect_alarm(
     fit: FitResult,
     statistic: str = "both",
 ) -> Optional[AlarmResult]:
-    """Find the first alarm time given thresholds.
-
-    Parameters
-    ----------
-    A : (T, len(K)) max statistics
-    Q : (T, len(K)) quadratic statistics
-    c_A : threshold multiplier for A
-    c_Q : threshold for Q
-    fit : FitResult
-    statistic : {"both", "linf_only", "l_infinity", "q_only"}
-
-    Returns
-    -------
-    AlarmResult or None
-    """
+    """Find the first alarm time given thresholds."""
     T, n_k = A.shape
     K = fit.window_grid
     p = fit.p
@@ -162,7 +119,6 @@ def detect_alarm(
     use_A = statistic in ("both", "linf_only", "l_infinity") and not np.isinf(tau_A)
     use_Q = statistic in ("both", "q_only") and not np.isinf(tau_Q)
 
-    # Find first t where any k violates
     for t in range(T):
         violating_ks = []
         for ki, k in enumerate(K):
@@ -177,7 +133,7 @@ def detect_alarm(
                 violating_ks.append(k)
 
         if violating_ks:
-            t_N = max(violating_ks)  # E11: largest violating window
+            t_N = max(violating_ks)
             nu_dyadic = t - t_N + 1
             return AlarmResult(N=t, t_N=t_N, nu_dyadic=nu_dyadic)
 
@@ -196,12 +152,7 @@ def scan_stream(
     c_Q: float,
     statistic: str = "both",
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, Optional[AlarmResult]]:
-    """Full pipeline: compute statistics and detect alarm.
-
-    Returns
-    -------
-    A, Q, W_all, alarm_result
-    """
+    """Full pipeline: compute statistics and detect alarm."""
     A, Q, W_all = compute_statistics_vectorised(X, fit)
     alarm = detect_alarm(A, Q, c_A, c_Q, fit, statistic=statistic)
     return A, Q, W_all, alarm

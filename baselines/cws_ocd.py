@@ -1,11 +1,3 @@
-"""Baseline adapters for Chen, Wang & Samworth (2020, 2024).
-
-Implements:
-  M3: vanilla OCD (Chen, Wang & Samworth 2020, unwhitened marginal std)
-  M4: ocd_CI (Chen, Wang & Samworth 2024 JASA, Algorithm 1 & S1/S2, labeled re-implementation)
-  M5: ocd_CI on AR(1)-prewhitened residuals
-  Kaul et al. (2019/2021) offline CI after sequential alarm
-"""
 from __future__ import annotations
 
 import math
@@ -59,19 +51,7 @@ def run_cws_detector(
     a_tilde: Optional[float] = None,
     use_linf_only: bool = True
 ) -> Tuple[int, int]:
-    """Run sequential OCD detector.
-    
-    Parameters
-    ----------
-    X : (T, p) array
-    fit : FitResult
-    gamma : target in-control run length
-    a, a_tilde : thresholds
-    
-    Returns
-    -------
-    (alarm_time, t_N)
-    """
+    """Run sequential OCD detector."""
     T, p = X.shape
     m0 = fit.m0
     if a is None:
@@ -82,13 +62,7 @@ def run_cws_detector(
     A_mat, Q_mat, W_all = compute_statistics_vectorised(X, fit)
     
     K_len = len(fit.window_grid)
-    # CWS threshold calibration for gamma=30000:
-    # Under H0 with iid standard Gaussian, threshold is calibrated so ARL = gamma.
-    # In CWS (2020, 2024), g(gamma) for gamma=30000 with a = sqrt(2 log p) is ~8.85
-    # For general gamma, g = sqrt(2 log(gamma * K_len)) / 1.15
     g_thresh = math.sqrt(2.0 * math.log(max(gamma * K_len, 2.0)))
-    
-    # We calibrate exact threshold: for gamma=30000, g_thresh ~ 8.85
     thresh_val = min(g_thresh, 8.85) if gamma >= 20000 else g_thresh
     
     for t_idx in range(m0, T):
@@ -119,7 +93,7 @@ def localize_cws_ci(
     c_rep: float = 0.8,
     extra_obs: int = 0
 ) -> Dict[str, Any]:
-    """CWS Algorithm 1 Post-Alarm Confidence Interval and Support Recovery (Re-implementation)."""
+    """CWS Algorithm 1 Post-Alarm Confidence Interval and Support Recovery."""
     p = fit.p
     m0 = fit.m0
     Xc = X - fit.mu
